@@ -1,0 +1,19 @@
+{
+	"http.hostname": "0.0.0.0",
+	"http.port": 9090,
+	"tls": true,
+	"tls_mutual": true,
+	"keystore": "/home/student/certs/localhost.jks",
+	"keystore_password": "changeit",
+	"truststore": "/home/student/certs/localhost.jks",
+	"truststore_password": "changeit",
+	"datastore":"/tmp/sharing",
+	
+	"certs": {
+		"server-public-key":"/home/student/certs/server-pub-key.der",
+		"server-private-key": "/home/student/certs/server-priv-key.pem",
+		"client-public-key":"/home/student/certs/client-pub-key.der",
+		"client-private-key":"/home/student/certs/client-priv-key.pem"
+	}
+		
+}

@@ -1,0 +1,318 @@
+Jun 23, 2021 5:38:37 AM com.drkiettran.sharing.MainVerticle
+INFO: *** Sharing Service starts ...
+Jun 23, 2021 5:38:37 AM com.drkiettran.sharing.MainVerticle
+INFO: SECRET_KEY:CaQ9KyRT9iPmgyDEyGxgjt/fzdS84bybYLKdYgINgJM=
+Jun 23, 2021 5:38:37 AM com.drkiettran.sharing.MainVerticle
+INFO: Main Verticle Cfg:
+	host name: 0.0.0.0
+	port no: 9090
+	tls: true
+	mutual tls: true
+	keystore: /home/student/certs/localhost.jks
+	keystore password: changeit
+	truststore: /home/student/certs/localhost.jks
+	truststore password: changeit
+	datastore: /tmp/sharing
+Jun 23, 2021 5:38:37 AM com.drkiettran.sharing.MainVerticle
+INFO: Reusing Secret Key & IV!
+Jun 23, 2021 5:38:37 AM com.drkiettran.sharing.MainVerticle
+INFO: 
+secret key: 'CaQ9KyRT9iPmgyDEyGxgjt/fzdS84bybYLKdYgINgJM=' 
+key length: '32' 
+algorithm: 'AES', 
+iv: 'V/gF6ibctMSNc/RZwaqjw7MCkhoXDrabiJiLqI6xaqqDIvPstTAW7UkbB7GCzBwuUBEnWYhBcUK6rOFJW49HrgsZLYOq2gaqEaDbMHmfzOVYdsuJBhvRFQnaOUhqQ/51st5rFF6W7/EzKFgW0kQoAV3C7PpWOaRj1n9ChzZP81c='
+Jun 23, 2021 5:38:37 AM com.drkiettran.sharing.MainVerticle
+INFO: getPubKey: type: client
+filename: /home/student/certs/client-pub-key.der
+
+Jun 23, 2021 5:38:37 AM com.drkiettran.sharing.MainVerticle
+INFO: getPubKey: type: server
+filename: /home/student/certs/server-pub-key.der
+
+Jun 23, 2021 5:38:37 AM com.drkiettran.sharing.MainVerticle
+INFO: getPrivKey: type: client
+filename: /home/student/certs/client-priv-key.pem
+
+Jun 23, 2021 5:38:37 AM com.drkiettran.sharing.MainVerticle
+INFO: getPrivKey: type: server
+filename: /home/student/certs/server-priv-key.pem
+
+Jun 23, 2021 5:38:37 AM com.drkiettran.sharing.MainVerticle
+INFO: input: MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEApt8nLx82e+aQMeCqc8gZxgQ5eoJVf00MAnIM4PMnI7gdHLX18s6S4eUFxrpn2hYC4Uv3TJ5AHgjfHgETyTSUuZ2DUyUZkTPEL2GhGEOua4dD3I469HTG09qAKbW/0rJs5aXVj90Kml62Ev8BYJWoOJ0lE4uIbHogc5iwVN9cujSk/VQu3MXagGeHhEZaVSPFJagjeUSo5WzUvQMHWFS8R1VWZlvC5dv1MpjF3Ya+QjKY+KfgWhu1nAWXQZip7pu5xIJlpHOIP3br0+3TRfHOC5jdpUkwQrRd9zihzP+4qEwh6dzRN78P7pmZ9verAd8fD7y7jk2wvNvD8+HpXQJ+FwIDAQAB
+Jun 23, 2021 5:38:37 AM com.drkiettran.sharing.MainVerticle
+INFO: Placed content of /home/student/certs/client-pub-key.der on bus
+Jun 23, 2021 5:38:37 AM com.drkiettran.sharing.MainVerticle
+INFO: input: MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAttJS+pGc/d4BMu/3sGWVMNFPJynT6fcO1xAOSpnM6tuMJFKipCErYV7w0zZrr0iEJOkw5R8lf9Y3U4ikMvzlR4kqVBtkiFuDkhP1wYrxibEkfvx3SzrkAVVbuUNzIpIvhe+HkVh7LfLS5nT3AEbe3sajY9RxFA44lvOXKDfhU0Ff3wWXyKF81L49WXgWms22PVFcFbAxuvlMGjTCNLgoGlJZff94WyQ2zT6mLPJM6WJUwkdSTCNsfQGoWu2RTOUR+lVC61z8k50e7DmSRxCnJ+daJ3M7vHcRoaTbuh5mOf0IK997thn7jNQIfaPjbtZMhpjTPzvbRnvewuytlRK4QQIDAQAB
+Jun 23, 2021 5:38:37 AM com.drkiettran.sharing.MainVerticle
+INFO: Placed content of /home/student/certs/server-pub-key.der on bus
+Jun 23, 2021 5:38:38 AM com.drkiettran.sharing.MainVerticle
+INFO: input: QmFnIEF0dHJpYnV0ZXMKICAgIGZyaWVuZGx5TmFtZTogY2xpZW50CiAgICBsb2NhbEtleUlEOiA1NCA2OSA2RCA2NSAyMCAzMSAzNiAzMiAzMiAzMSAzOSAzOCAzNyAzNSAzMCAzMiAzNyAzMCAKS2V5IEF0dHJpYnV0ZXM6IDxObyBBdHRyaWJ1dGVzPgotLS0tLUJFR0lOIFBSSVZBVEUgS0VZLS0tLS0KTUlJRXZnSUJBREFOQmdrcWhraUc5dzBCQVFFRkFBU0NCS2d3Z2dTa0FnRUFBb0lCQVFDbTN5Y3ZIelo3NXBBeAo0S3B6eUJuR0JEbDZnbFYvVFF3Q2Nnemc4eWNqdUIwY3RmWHl6cExoNVFYR3VtZmFGZ0xoUy9kTW5rQWVDTjhlCkFSUEpOSlM1bllOVEpSbVJNOFF2WWFFWVE2NXJoMFBjampyMGRNYlQyb0FwdGIvU3NtemxwZFdQM1FxYVhyWVMKL3dGZ2xhZzRuU1VUaTRoc2VpQnptTEJVMzF5Nk5LVDlWQzdjeGRxQVo0ZUVSbHBWSThVbHFDTjVSS2psYk5TOQpBd2RZVkx4SFZWWm1XOExsMi9VeW1NWGRocjVDTXBqNHArQmFHN1djQlpkQm1LbnVtN25FZ21Xa2M0Zy9kdXZUCjdkTkY4YzRMbU4ybFNUQkN0RjMzT0tITS83aW9UQ0hwM05FM3Z3L3VtWm4yOTZzQjN4OFB2THVPVGJDODI4UHoKNGVsZEFuNFhBZ01CQUFFQ2dnRUFYdGpEcXRMdzR1ZWYyZG02eUdoWnplVWt6bTg2TFVzYm9tQTAxYjhlNWZ5RgovNFdsTDhjZVVXc2RKMkZZR2VzYzQvV0xzRzdhUHJnSUtVT3ZmVk4zblREY0xld09aaXVvUE00ZkJHMmp1OVo4ClNlWkZ1Q0NQeW1hTkppZjV5Y1pFZ3hzSkVlWXZXcUt1bG9sK3ZPa1RYbXBqWW9LU25pV2tRRS92R2E2RFJBb3QKN3RVZXVtcEp2MUVPOUQ3ZXFsNUhYd3BCU0gyYWxCVGlNeGsxWjFHWEZwdWFYdndwZ3FVZ0M2ZDlJb3UvTkZLQQo1dFl0ZmRqRkNGSnVhQnVzOE1YL2xQRzFOcW5zWUkrMEMzcWFUeXlFcWlpVk9WTlJKenRQSWNjTDVpVWRkeSt1CnB0YlAvcnVCWGsxRTNYblV4YWhLNTZEUGJIMFQ2bVBFNFNZL2QxUlVJUUtCZ1FEMEV4RTZnK0FZc0tSdS9MZXkKYUdBUTR1M2JJN0Z0NitMTEVhdFRJUDQ3Vm9aYjJDdUd3MTNHRm00b25JUm4xbzdKVTFabndSdmZhWFRqakFvYQpBZTFvdzc3cXRreXk1UGhvRTdXbE5zMll1OWd5MHA3dVFMQS9jellXVmgrVU9qTWJ2Q2owZW5nQlZWb3dOYmpPCjNVaDBXRm14NEw4Ni9CWFVGVTFtaERNU1R3S0JnUUN2Qm1yeERUbDJlbVo2K2NyNThrR0hBTTh6UG85WTBUY1YKd0ZKTWVySDF1dk56Zmt1cW5IbWhNNTVhN3lwZzNiMGwvd1l6am5nTFRQSU5kY3NkaGFmc0xWdHVBZWk5Z0sxYQpjKzR4TlZHN2tWWERYejZ2dXV5SHhHUGdCMmtnbDlqWm1acXdndDFwbXZtbVBjaXQwMjVTVHl5clV0WVZEQTU1ClpUREpnei9OdVFLQmdRQ1ZaYkp2QWRmQzVTVFJkc2t1WUNzbFN2SlM1NmNzWkcyKzVRTGNjRjZOamFuU1FDQnMKYmR0UmE5dGo2bUkxZVNTUFlQNkxwYTFjOUIwRFIyM0xlNUNKUnYvdWhVV3ZYdTRhTHE1S0FhQ1pNNm5qZWY2awpVVjVRaUVIOExCMUtTdEdMMFlHMEc5Nm0ya3JKSmFrSW5uUkNHdTVVTGdCL3AxdnBKRnpyT2xKVWl3S0JnUUNtCjNSWjl4QjdobnFZdlhoQ3VwTkRtTmRaVXc3TUVlVW5zR2RRY2grazhIa1ZWK2JXSDdmQmp5SU9UckdxWnVTMUkKbVU4L1BmZWl4blFLY3gvM2dHSnMzMzFJYnRlR083U0tCUGEwd1dHdjBrcVNuaTUwZVdCaHU5R0FWM0JabTRzcApRYkZoMFJIb1NkRHpOZm9xQnVZcDRNUDBmbUFONXRXeDFOQmpmaGNKT1FLQmdEUzhHb2h6WVVlWkFST1hzbUpPCnBRTzBTcDluL0x4eUd3OEVjdjBWcEx2aFBDMUt1ZEVaS29jZkRvR1BXd2laRGlSRTVkSFdINDdyN1dNc3g1bUEKZVpJV0tSSElnZmsyYktzWk5nQnB0Y2dUM1pUdXlNUCtDWVBMTDF6a3hFbnVzbFl2ejVwM0VtSTF0cEpGd1lWdQpaSlRuQUhJMjhFWkhMNXdlUlhaZ0VWbDEKLS0tLS1FTkQgUFJJVkFURSBLRVktLS0tLQo=
+Jun 23, 2021 5:38:38 AM com.drkiettran.sharing.MainVerticle
+INFO: Placed content of /home/student/certs/client-priv-key.pem on bus
+Jun 23, 2021 5:38:38 AM com.drkiettran.sharing.MainVerticle
+INFO: input: QmFnIEF0dHJpYnV0ZXMKICAgIGZyaWVuZGx5TmFtZTogc2VydmVyCiAgICBsb2NhbEtleUlEOiA1NCA2OSA2RCA2NSAyMCAzMSAzNiAzMiAzMiAzMSAzOSAzNSAzMyAzMyAzMSAzNSAzMyAzNiAKS2V5IEF0dHJpYnV0ZXM6IDxObyBBdHRyaWJ1dGVzPgotLS0tLUJFR0lOIFBSSVZBVEUgS0VZLS0tLS0KTUlJRXZnSUJBREFOQmdrcWhraUc5dzBCQVFFRkFBU0NCS2d3Z2dTa0FnRUFBb0lCQVFDMjBsTDZrWno5M2dFeQo3L2V3WlpVdzBVOG5LZFBwOXc3WEVBNUttY3pxMjR3a1VxS2tJU3RoWHZEVE5tdXZTSVFrNlREbEh5Vi8xamRUCmlLUXkvT1ZIaVNwVUcyU0lXNE9TRS9YQml2R0pzU1IrL0hkTE91UUJWVnU1UTNNaWtpK0Y3NGVSV0hzdDh0TG0KZFBjQVJ0N2V4cU5qMUhFVURqaVc4NWNvTitGVFFWL2ZCWmZJb1h6VXZqMVplQmFhemJZOVVWd1ZzREc2K1V3YQpOTUkwdUNnYVVsbDkvM2hiSkRiTlBxWXM4a3pwWWxUQ1IxSk1JMng5QWFoYTdaRk01Ukg2VlVMclhQeVRuUjdzCk9aSkhFS2NuNTFvbmN6dThkeEdocE51NkhtWTUvUWdyMzN1MkdmdU0xQWg5bytOdTFreUdtTk0vTzl0R2U5N0MKN0syVkVyaEJBZ01CQUFFQ2dnRUFZNHFDMmFFYzdIRExFRlB0OWFKcHA4bmZJZ0M1UEVOalZoK00ySHVEUWtERgp2aVVzSHRkY2lraXFNU1lKWGNmTEExbmdZSEFqOThYSUcvaGpCc3dCZm9DbGhtUGZ5Z3FoeVpDS2w1V3lTM2tpCjJPMVhlcU9XNzA3dGdTTERkb2hIemRJTWEwdlV6Y0RQcWVEM2Q3UWV0d2RLZ1JsemRDc0dEdEtVYzdaeFBlV0cKcFJBTW9uLzhPN2I5M3ZIV0F6Wm5rZExSVytrRjhvYmZTc2tUYmNYZTIrUjMrRE5qTk1sY3RiSnJSRHVhUE1JNgpHNDRoMXNUb2dXampkVXNyaDR2cjN5Rmg5MUJCaHBEbGMzWmhKR0s2a05ibjFtUlVIaWV0VkRQK0VZZjZ5YXBwCmFhQVFtKzZPdzBnd2tPd1hxMU1EZ0w3bWtCM2UxMGZUZXRJT0lnQktrUUtCZ1FEdmE0OExsd2hMODZZTFkzOSsKSU15VHV0YWYvUE0rclZlTjM3TW5tTzRQZlhUYStMK2VnbDlkTDhWMmhIeEo3bTVLVWZkZDgvS0lMbWhEOG80dwo4RmlkZ3FuZGJzV1pWMzJ5YVhxaTl2RHVjYWhGRmZMcEJDQjVrNTI4QmxOSDZuNWUyKy9qRUtzV0JIQjZRTW1lClhIR0xLNTNOSm56aFFaTHhQSnVuZ21BM0JRS0JnUUREZTJLOEEzcEhZeHpLS0JRUTlnOGwwcFBad2MvTUczY1MKWFNRZFFySndJRnBvSEVQNi9aNkIwcThqRllMVUpyRUtoT3BIRmhNWVZTa3NTZ1ZWVHRld1RQV01sTi90a0VKOQozTno5b0pzZ2NxN0xuNElET2J3eFZaRkc3MG9ZQWNLTkV2R2pwczg0Z3Y2QnhKdGNoMTJLQ1VVTmxFNDdxYTFJClZRWjd0Wm5KRFFLQmdRRFFsa3ZNMUN1MVNEUHNqaVlBTkFFbjM4cW5IbENwMVltSElGTE1kODlJRFl3bVRqdGIKbE1nU3Z0RHhYYUdQSTd4UTRiSjYxMU1BMURXZ3BReStsRmNQKzB1VWtMSjAweVcrcjJqWjIveXlNTEZpWnluMwpXdElVT2NoZGpNRTMwWk9CZjJveTBFM040OVkrbkgxTGk4eWNiRWFSK2lzb2NPSGRiR2xMK2lsckpRS0JnRFJoClpwYU10QUpXKzRycjdGeVRJb0gzQ0Nrc2R0cnhiUm1kbmFTOWo0VGVGbnVaUDFvTkJhRXg3RDRSY0lvYWlBd1MKaTVoYXdPa2ZRTFllYTRsdFkveFkwdDlGc1M4K0hhTU9RS1V4bVArNzJ6eXkxQ3E3R01ON2N6ODN0WG56VnNkbwprUmxTQkdyWEp3MXN1bGl6NlF1bzZqajJTWFJSUmg2QXNna0tJMWd0QW9HQkFJNVVXMFQ5N0Y5OHF5cVFWbEFLCmtoajR0OFMrbkpqMDNpbXRnK3VYM2ZiZ1RZbWNlSzBRQ21nUzF3bC9odnh4eFlaUzFjM3RNYnc5SzFxckw2ek4KaTZuVE9oMTdDanVZdmJSQUxqSklYY09BM1RLTXl5NnpXb291cU1IaUhUTGZjbStlbXBTcnp2QUN4VVV4Q0FZRwpBeEhmV2I2R2JhZ3l5aHdsU3hNOEdIZ0oKLS0tLS1FTkQgUFJJVkFURSBLRVktLS0tLQo=
+Jun 23, 2021 5:38:38 AM com.drkiettran.sharing.MainVerticle
+INFO: Placed content of /home/student/certs/server-priv-key.pem on bus
+Jun 23, 2021 5:38:38 AM com.drkiettran.sharing.MainVerticle
+INFO: *** HTTP server started on port: 9090
+Jun 23, 2021 5:38:38 AM io.vertx.core.impl.launcher.commands.VertxIsolatedDeployer
+INFO: Succeeded in deploying verticle
+Jun 23, 2021 5:38:38 AM com.drkiettran.sharing.MainVerticle
+INFO: DER:0�"0
+Jun 23, 2021 5:38:38 AM com.drkiettran.sharing.MainVerticle
+INFO: name: server-public-key
+alg: RSA
+Encoded: MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAttJS+pGc/d4BMu/3sGWVMNFPJynT6fcO1xAOSpnM6tuMJFKipCErYV7w0zZrr0iEJOkw5R8lf9Y3U4ikMvzlR4kqVBtkiFuDkhP1wYrxibEkfvx3SzrkAVVbuUNzIpIvhe+HkVh7LfLS5nT3AEbe3sajY9RxFA44lvOXKDfhU0Ff3wWXyKF81L49WXgWms22PVFcFbAxuvlMGjTCNLgoGlJZff94WyQ2zT6mLPJM6WJUwkdSTCNsfQGoWu2RTOUR+lVC61z8k50e7DmSRxCnJ+daJ3M7vHcRoaTbuh5mOf0IK997thn7jNQIfaPjbtZMhpjTPzvbRnvewuytlRK4QQIDAQAB
+format:X.509
+
+Jun 23, 2021 5:38:38 AM com.drkiettran.sharing.MainVerticle
+INFO: PEM:Bag Attributes
+    friendlyName: client
+    localKeyID: 54 69 6D 65 20 31 36 32 32 31 39 38 37 35 30 32 37 30 
+Key Attributes: <No Attributes>
+-----BEGIN PRIVATE KEY-----
+MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQCm3ycvHzZ75pAx
+4KpzyBnGBDl6glV/TQwCcgzg8ycjuB0ctfXyzpLh5QXGumfaFgLhS/dMnkAeCN8e
+ARPJNJS5nYNTJRmRM8QvYaEYQ65rh0Pcjjr0dMbT2oAptb/SsmzlpdWP3QqaXrYS
+/wFglag4nSUTi4hseiBzmLBU31y6NKT9VC7cxdqAZ4eERlpVI8UlqCN5RKjlbNS9
+AwdYVLxHVVZmW8Ll2/UymMXdhr5CMpj4p+BaG7WcBZdBmKnum7nEgmWkc4g/duvT
+7dNF8c4LmN2lSTBCtF33OKHM/7ioTCHp3NE3vw/umZn296sB3x8PvLuOTbC828Pz
+4eldAn4XAgMBAAECggEAXtjDqtLw4uef2dm6yGhZzeUkzm86LUsbomA01b8e5fyF
+/4WlL8ceUWsdJ2FYGesc4/WLsG7aPrgIKUOvfVN3nTDcLewOZiuoPM4fBG2ju9Z8
+SeZFuCCPymaNJif5ycZEgxsJEeYvWqKulol+vOkTXmpjYoKSniWkQE/vGa6DRAot
+7tUeumpJv1EO9D7eql5HXwpBSH2alBTiMxk1Z1GXFpuaXvwpgqUgC6d9Iou/NFKA
+5tYtfdjFCFJuaBus8MX/lPG1NqnsYI+0C3qaTyyEqiiVOVNRJztPIccL5iUddy+u
+ptbP/ruBXk1E3XnUxahK56DPbH0T6mPE4SY/d1RUIQKBgQD0ExE6g+AYsKRu/Ley
+aGAQ4u3bI7Ft6+LLEatTIP47VoZb2CuGw13GFm4onIRn1o7JU1ZnwRvfaXTjjAoa
+Ae1ow77qtkyy5PhoE7WlNs2Yu9gy0p7uQLA/czYWVh+UOjMbvCj0engBVVowNbjO
+3Uh0WFmx4L86/BXUFU1mhDMSTwKBgQCvBmrxDTl2emZ6+cr58kGHAM8zPo9Y0TcV
+wFJMerH1uvNzfkuqnHmhM55a7ypg3b0l/wYzjngLTPINdcsdhafsLVtuAei9gK1a
+c+4xNVG7kVXDXz6vuuyHxGPgB2kgl9jZmZqwgt1pmvmmPcit025STyyrUtYVDA55
+ZTDJgz/NuQKBgQCVZbJvAdfC5STRdskuYCslSvJS56csZG2+5QLccF6NjanSQCBs
+bdtRa9tj6mI1eSSPYP6Lpa1c9B0DR23Le5CJRv/uhUWvXu4aLq5KAaCZM6njef6k
+UV5QiEH8LB1KStGL0YG0G96m2krJJakInnRCGu5ULgB/p1vpJFzrOlJUiwKBgQCm
+3RZ9xB7hnqYvXhCupNDmNdZUw7MEeUnsGdQch+k8HkVV+bWH7fBjyIOTrGqZuS1I
+mU8/PfeixnQKcx/3gGJs331IbteGO7SKBPa0wWGv0kqSni50eWBhu9GAV3BZm4sp
+QbFh0RHoSdDzNfoqBuYp4MP0fmAN5tWx1NBjfhcJOQKBgDS8GohzYUeZAROXsmJO
+pQO0Sp9n/LxyGw8Ecv0VpLvhPC1KudEZKocfDoGPWwiZDiRE5dHWH47r7WMsx5mA
+eZIWKRHIgfk2bKsZNgBptcgT3ZTuyMP+CYPLL1zkxEnuslYvz5p3EmI1tpJFwYVu
+ZJTnAHI28EZHL5weRXZgEVl1
+-----END PRIVATE KEY-----
+
+Jun 23, 2021 5:38:38 AM com.drkiettran.sharing.MainVerticle
+INFO: after trim: -----BEGIN PRIVATE KEY-----
+MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQCm3ycvHzZ75pAx
+4KpzyBnGBDl6glV/TQwCcgzg8ycjuB0ctfXyzpLh5QXGumfaFgLhS/dMnkAeCN8e
+ARPJNJS5nYNTJRmRM8QvYaEYQ65rh0Pcjjr0dMbT2oAptb/SsmzlpdWP3QqaXrYS
+/wFglag4nSUTi4hseiBzmLBU31y6NKT9VC7cxdqAZ4eERlpVI8UlqCN5RKjlbNS9
+AwdYVLxHVVZmW8Ll2/UymMXdhr5CMpj4p+BaG7WcBZdBmKnum7nEgmWkc4g/duvT
+7dNF8c4LmN2lSTBCtF33OKHM/7ioTCHp3NE3vw/umZn296sB3x8PvLuOTbC828Pz
+4eldAn4XAgMBAAECggEAXtjDqtLw4uef2dm6yGhZzeUkzm86LUsbomA01b8e5fyF
+/4WlL8ceUWsdJ2FYGesc4/WLsG7aPrgIKUOvfVN3nTDcLewOZiuoPM4fBG2ju9Z8
+SeZFuCCPymaNJif5ycZEgxsJEeYvWqKulol+vOkTXmpjYoKSniWkQE/vGa6DRAot
+7tUeumpJv1EO9D7eql5HXwpBSH2alBTiMxk1Z1GXFpuaXvwpgqUgC6d9Iou/NFKA
+5tYtfdjFCFJuaBus8MX/lPG1NqnsYI+0C3qaTyyEqiiVOVNRJztPIccL5iUddy+u
+ptbP/ruBXk1E3XnUxahK56DPbH0T6mPE4SY/d1RUIQKBgQD0ExE6g+AYsKRu/Ley
+aGAQ4u3bI7Ft6+LLEatTIP47VoZb2CuGw13GFm4onIRn1o7JU1ZnwRvfaXTjjAoa
+Ae1ow77qtkyy5PhoE7WlNs2Yu9gy0p7uQLA/czYWVh+UOjMbvCj0engBVVowNbjO
+3Uh0WFmx4L86/BXUFU1mhDMSTwKBgQCvBmrxDTl2emZ6+cr58kGHAM8zPo9Y0TcV
+wFJMerH1uvNzfkuqnHmhM55a7ypg3b0l/wYzjngLTPINdcsdhafsLVtuAei9gK1a
+c+4xNVG7kVXDXz6vuuyHxGPgB2kgl9jZmZqwgt1pmvmmPcit025STyyrUtYVDA55
+ZTDJgz/NuQKBgQCVZbJvAdfC5STRdskuYCslSvJS56csZG2+5QLccF6NjanSQCBs
+bdtRa9tj6mI1eSSPYP6Lpa1c9B0DR23Le5CJRv/uhUWvXu4aLq5KAaCZM6njef6k
+UV5QiEH8LB1KStGL0YG0G96m2krJJakInnRCGu5ULgB/p1vpJFzrOlJUiwKBgQCm
+3RZ9xB7hnqYvXhCupNDmNdZUw7MEeUnsGdQch+k8HkVV+bWH7fBjyIOTrGqZuS1I
+mU8/PfeixnQKcx/3gGJs331IbteGO7SKBPa0wWGv0kqSni50eWBhu9GAV3BZm4sp
+QbFh0RHoSdDzNfoqBuYp4MP0fmAN5tWx1NBjfhcJOQKBgDS8GohzYUeZAROXsmJO
+pQO0Sp9n/LxyGw8Ecv0VpLvhPC1KudEZKocfDoGPWwiZDiRE5dHWH47r7WMsx5mA
+eZIWKRHIgfk2bKsZNgBptcgT3ZTuyMP+CYPLL1zkxEnuslYvz5p3EmI1tpJFwYVu
+ZJTnAHI28EZHL5weRXZgEVl1
+-----END PRIVATE KEY-----
+
+Jun 23, 2021 5:38:38 AM com.drkiettran.sharing.MainVerticle
+INFO: name: client-private-key
+alg: RSA
+Encoded: MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQCm3ycvHzZ75pAx4KpzyBnGBDl6glV/TQwCcgzg8ycjuB0ctfXyzpLh5QXGumfaFgLhS/dMnkAeCN8eARPJNJS5nYNTJRmRM8QvYaEYQ65rh0Pcjjr0dMbT2oAptb/SsmzlpdWP3QqaXrYS/wFglag4nSUTi4hseiBzmLBU31y6NKT9VC7cxdqAZ4eERlpVI8UlqCN5RKjlbNS9AwdYVLxHVVZmW8Ll2/UymMXdhr5CMpj4p+BaG7WcBZdBmKnum7nEgmWkc4g/duvT7dNF8c4LmN2lSTBCtF33OKHM/7ioTCHp3NE3vw/umZn296sB3x8PvLuOTbC828Pz4eldAn4XAgMBAAECggEAXtjDqtLw4uef2dm6yGhZzeUkzm86LUsbomA01b8e5fyF/4WlL8ceUWsdJ2FYGesc4/WLsG7aPrgIKUOvfVN3nTDcLewOZiuoPM4fBG2ju9Z8SeZFuCCPymaNJif5ycZEgxsJEeYvWqKulol+vOkTXmpjYoKSniWkQE/vGa6DRAot7tUeumpJv1EO9D7eql5HXwpBSH2alBTiMxk1Z1GXFpuaXvwpgqUgC6d9Iou/NFKA5tYtfdjFCFJuaBus8MX/lPG1NqnsYI+0C3qaTyyEqiiVOVNRJztPIccL5iUddy+uptbP/ruBXk1E3XnUxahK56DPbH0T6mPE4SY/d1RUIQKBgQD0ExE6g+AYsKRu/LeyaGAQ4u3bI7Ft6+LLEatTIP47VoZb2CuGw13GFm4onIRn1o7JU1ZnwRvfaXTjjAoaAe1ow77qtkyy5PhoE7WlNs2Yu9gy0p7uQLA/czYWVh+UOjMbvCj0engBVVowNbjO3Uh0WFmx4L86/BXUFU1mhDMSTwKBgQCvBmrxDTl2emZ6+cr58kGHAM8zPo9Y0TcVwFJMerH1uvNzfkuqnHmhM55a7ypg3b0l/wYzjngLTPINdcsdhafsLVtuAei9gK1ac+4xNVG7kVXDXz6vuuyHxGPgB2kgl9jZmZqwgt1pmvmmPcit025STyyrUtYVDA55ZTDJgz/NuQKBgQCVZbJvAdfC5STRdskuYCslSvJS56csZG2+5QLccF6NjanSQCBsbdtRa9tj6mI1eSSPYP6Lpa1c9B0DR23Le5CJRv/uhUWvXu4aLq5KAaCZM6njef6kUV5QiEH8LB1KStGL0YG0G96m2krJJakInnRCGu5ULgB/p1vpJFzrOlJUiwKBgQCm3RZ9xB7hnqYvXhCupNDmNdZUw7MEeUnsGdQch+k8HkVV+bWH7fBjyIOTrGqZuS1ImU8/PfeixnQKcx/3gGJs331IbteGO7SKBPa0wWGv0kqSni50eWBhu9GAV3BZm4spQbFh0RHoSdDzNfoqBuYp4MP0fmAN5tWx1NBjfhcJOQKBgDS8GohzYUeZAROXsmJOpQO0Sp9n/LxyGw8Ecv0VpLvhPC1KudEZKocfDoGPWwiZDiRE5dHWH47r7WMsx5mAeZIWKRHIgfk2bKsZNgBptcgT3ZTuyMP+CYPLL1zkxEnuslYvz5p3EmI1tpJFwYVuZJTnAHI28EZHL5weRXZgEVl1
+format:PKCS#8
+
+Jun 23, 2021 5:38:38 AM com.drkiettran.sharing.MainVerticle
+INFO: PEM:Bag Attributes
+    friendlyName: server
+    localKeyID: 54 69 6D 65 20 31 36 32 32 31 39 35 33 33 31 35 33 36 
+Key Attributes: <No Attributes>
+-----BEGIN PRIVATE KEY-----
+MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQC20lL6kZz93gEy
+7/ewZZUw0U8nKdPp9w7XEA5Kmczq24wkUqKkISthXvDTNmuvSIQk6TDlHyV/1jdT
+iKQy/OVHiSpUG2SIW4OSE/XBivGJsSR+/HdLOuQBVVu5Q3Miki+F74eRWHst8tLm
+dPcARt7exqNj1HEUDjiW85coN+FTQV/fBZfIoXzUvj1ZeBaazbY9UVwVsDG6+Uwa
+NMI0uCgaUll9/3hbJDbNPqYs8kzpYlTCR1JMI2x9Aaha7ZFM5RH6VULrXPyTnR7s
+OZJHEKcn51onczu8dxGhpNu6HmY5/Qgr33u2GfuM1Ah9o+Nu1kyGmNM/O9tGe97C
+7K2VErhBAgMBAAECggEAY4qC2aEc7HDLEFPt9aJpp8nfIgC5PENjVh+M2HuDQkDF
+viUsHtdcikiqMSYJXcfLA1ngYHAj98XIG/hjBswBfoClhmPfygqhyZCKl5WyS3ki
+2O1XeqOW707tgSLDdohHzdIMa0vUzcDPqeD3d7QetwdKgRlzdCsGDtKUc7ZxPeWG
+pRAMon/8O7b93vHWAzZnkdLRW+kF8obfSskTbcXe2+R3+DNjNMlctbJrRDuaPMI6
+G44h1sTogWjjdUsrh4vr3yFh91BBhpDlc3ZhJGK6kNbn1mRUHietVDP+EYf6yapp
+aaAQm+6Ow0gwkOwXq1MDgL7mkB3e10fTetIOIgBKkQKBgQDva48LlwhL86YLY39+
+IMyTutaf/PM+rVeN37MnmO4PfXTa+L+egl9dL8V2hHxJ7m5KUfdd8/KILmhD8o4w
+8FidgqndbsWZV32yaXqi9vDucahFFfLpBCB5k528BlNH6n5e2+/jEKsWBHB6QMme
+XHGLK53NJnzhQZLxPJungmA3BQKBgQDDe2K8A3pHYxzKKBQQ9g8l0pPZwc/MG3cS
+XSQdQrJwIFpoHEP6/Z6B0q8jFYLUJrEKhOpHFhMYVSksSgVVTtewTPWMlN/tkEJ9
+3Nz9oJsgcq7Ln4IDObwxVZFG70oYAcKNEvGjps84gv6BxJtch12KCUUNlE47qa1I
+VQZ7tZnJDQKBgQDQlkvM1Cu1SDPsjiYANAEn38qnHlCp1YmHIFLMd89IDYwmTjtb
+lMgSvtDxXaGPI7xQ4bJ611MA1DWgpQy+lFcP+0uUkLJ00yW+r2jZ2/yyMLFiZyn3
+WtIUOchdjME30ZOBf2oy0E3N49Y+nH1Li8ycbEaR+isocOHdbGlL+ilrJQKBgDRh
+ZpaMtAJW+4rr7FyTIoH3CCksdtrxbRmdnaS9j4TeFnuZP1oNBaEx7D4RcIoaiAwS
+i5hawOkfQLYea4ltY/xY0t9FsS8+HaMOQKUxmP+72zyy1Cq7GMN7cz83tXnzVsdo
+kRlSBGrXJw1suliz6Quo6jj2SXRRRh6AsgkKI1gtAoGBAI5UW0T97F98qyqQVlAK
+khj4t8S+nJj03imtg+uX3fbgTYmceK0QCmgS1wl/hvxxxYZS1c3tMbw9K1qrL6zN
+i6nTOh17CjuYvbRALjJIXcOA3TKMyy6zWoouqMHiHTLfcm+empSrzvACxUUxCAYG
+AxHfWb6GbagyyhwlSxM8GHgJ
+-----END PRIVATE KEY-----
+
+Jun 23, 2021 5:38:38 AM com.drkiettran.sharing.MainVerticle
+INFO: after trim: -----BEGIN PRIVATE KEY-----
+MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQC20lL6kZz93gEy
+7/ewZZUw0U8nKdPp9w7XEA5Kmczq24wkUqKkISthXvDTNmuvSIQk6TDlHyV/1jdT
+iKQy/OVHiSpUG2SIW4OSE/XBivGJsSR+/HdLOuQBVVu5Q3Miki+F74eRWHst8tLm
+dPcARt7exqNj1HEUDjiW85coN+FTQV/fBZfIoXzUvj1ZeBaazbY9UVwVsDG6+Uwa
+NMI0uCgaUll9/3hbJDbNPqYs8kzpYlTCR1JMI2x9Aaha7ZFM5RH6VULrXPyTnR7s
+OZJHEKcn51onczu8dxGhpNu6HmY5/Qgr33u2GfuM1Ah9o+Nu1kyGmNM/O9tGe97C
+7K2VErhBAgMBAAECggEAY4qC2aEc7HDLEFPt9aJpp8nfIgC5PENjVh+M2HuDQkDF
+viUsHtdcikiqMSYJXcfLA1ngYHAj98XIG/hjBswBfoClhmPfygqhyZCKl5WyS3ki
+2O1XeqOW707tgSLDdohHzdIMa0vUzcDPqeD3d7QetwdKgRlzdCsGDtKUc7ZxPeWG
+pRAMon/8O7b93vHWAzZnkdLRW+kF8obfSskTbcXe2+R3+DNjNMlctbJrRDuaPMI6
+G44h1sTogWjjdUsrh4vr3yFh91BBhpDlc3ZhJGK6kNbn1mRUHietVDP+EYf6yapp
+aaAQm+6Ow0gwkOwXq1MDgL7mkB3e10fTetIOIgBKkQKBgQDva48LlwhL86YLY39+
+IMyTutaf/PM+rVeN37MnmO4PfXTa+L+egl9dL8V2hHxJ7m5KUfdd8/KILmhD8o4w
+8FidgqndbsWZV32yaXqi9vDucahFFfLpBCB5k528BlNH6n5e2+/jEKsWBHB6QMme
+XHGLK53NJnzhQZLxPJungmA3BQKBgQDDe2K8A3pHYxzKKBQQ9g8l0pPZwc/MG3cS
+XSQdQrJwIFpoHEP6/Z6B0q8jFYLUJrEKhOpHFhMYVSksSgVVTtewTPWMlN/tkEJ9
+3Nz9oJsgcq7Ln4IDObwxVZFG70oYAcKNEvGjps84gv6BxJtch12KCUUNlE47qa1I
+VQZ7tZnJDQKBgQDQlkvM1Cu1SDPsjiYANAEn38qnHlCp1YmHIFLMd89IDYwmTjtb
+lMgSvtDxXaGPI7xQ4bJ611MA1DWgpQy+lFcP+0uUkLJ00yW+r2jZ2/yyMLFiZyn3
+WtIUOchdjME30ZOBf2oy0E3N49Y+nH1Li8ycbEaR+isocOHdbGlL+ilrJQKBgDRh
+ZpaMtAJW+4rr7FyTIoH3CCksdtrxbRmdnaS9j4TeFnuZP1oNBaEx7D4RcIoaiAwS
+i5hawOkfQLYea4ltY/xY0t9FsS8+HaMOQKUxmP+72zyy1Cq7GMN7cz83tXnzVsdo
+kRlSBGrXJw1suliz6Quo6jj2SXRRRh6AsgkKI1gtAoGBAI5UW0T97F98qyqQVlAK
+khj4t8S+nJj03imtg+uX3fbgTYmceK0QCmgS1wl/hvxxxYZS1c3tMbw9K1qrL6zN
+i6nTOh17CjuYvbRALjJIXcOA3TKMyy6zWoouqMHiHTLfcm+empSrzvACxUUxCAYG
+AxHfWb6GbagyyhwlSxM8GHgJ
+-----END PRIVATE KEY-----
+
+Jun 23, 2021 5:38:38 AM com.drkiettran.sharing.MainVerticle
+INFO: name: server-private-key
+alg: RSA
+Encoded: MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQC20lL6kZz93gEy7/ewZZUw0U8nKdPp9w7XEA5Kmczq24wkUqKkISthXvDTNmuvSIQk6TDlHyV/1jdTiKQy/OVHiSpUG2SIW4OSE/XBivGJsSR+/HdLOuQBVVu5Q3Miki+F74eRWHst8tLmdPcARt7exqNj1HEUDjiW85coN+FTQV/fBZfIoXzUvj1ZeBaazbY9UVwVsDG6+UwaNMI0uCgaUll9/3hbJDbNPqYs8kzpYlTCR1JMI2x9Aaha7ZFM5RH6VULrXPyTnR7sOZJHEKcn51onczu8dxGhpNu6HmY5/Qgr33u2GfuM1Ah9o+Nu1kyGmNM/O9tGe97C7K2VErhBAgMBAAECggEAY4qC2aEc7HDLEFPt9aJpp8nfIgC5PENjVh+M2HuDQkDFviUsHtdcikiqMSYJXcfLA1ngYHAj98XIG/hjBswBfoClhmPfygqhyZCKl5WyS3ki2O1XeqOW707tgSLDdohHzdIMa0vUzcDPqeD3d7QetwdKgRlzdCsGDtKUc7ZxPeWGpRAMon/8O7b93vHWAzZnkdLRW+kF8obfSskTbcXe2+R3+DNjNMlctbJrRDuaPMI6G44h1sTogWjjdUsrh4vr3yFh91BBhpDlc3ZhJGK6kNbn1mRUHietVDP+EYf6yappaaAQm+6Ow0gwkOwXq1MDgL7mkB3e10fTetIOIgBKkQKBgQDva48LlwhL86YLY39+IMyTutaf/PM+rVeN37MnmO4PfXTa+L+egl9dL8V2hHxJ7m5KUfdd8/KILmhD8o4w8FidgqndbsWZV32yaXqi9vDucahFFfLpBCB5k528BlNH6n5e2+/jEKsWBHB6QMmeXHGLK53NJnzhQZLxPJungmA3BQKBgQDDe2K8A3pHYxzKKBQQ9g8l0pPZwc/MG3cSXSQdQrJwIFpoHEP6/Z6B0q8jFYLUJrEKhOpHFhMYVSksSgVVTtewTPWMlN/tkEJ93Nz9oJsgcq7Ln4IDObwxVZFG70oYAcKNEvGjps84gv6BxJtch12KCUUNlE47qa1IVQZ7tZnJDQKBgQDQlkvM1Cu1SDPsjiYANAEn38qnHlCp1YmHIFLMd89IDYwmTjtblMgSvtDxXaGPI7xQ4bJ611MA1DWgpQy+lFcP+0uUkLJ00yW+r2jZ2/yyMLFiZyn3WtIUOchdjME30ZOBf2oy0E3N49Y+nH1Li8ycbEaR+isocOHdbGlL+ilrJQKBgDRhZpaMtAJW+4rr7FyTIoH3CCksdtrxbRmdnaS9j4TeFnuZP1oNBaEx7D4RcIoaiAwSi5hawOkfQLYea4ltY/xY0t9FsS8+HaMOQKUxmP+72zyy1Cq7GMN7cz83tXnzVsdokRlSBGrXJw1suliz6Quo6jj2SXRRRh6AsgkKI1gtAoGBAI5UW0T97F98qyqQVlAKkhj4t8S+nJj03imtg+uX3fbgTYmceK0QCmgS1wl/hvxxxYZS1c3tMbw9K1qrL6zNi6nTOh17CjuYvbRALjJIXcOA3TKMyy6zWoouqMHiHTLfcm+empSrzvACxUUxCAYGAxHfWb6GbagyyhwlSxM8GHgJ
+format:PKCS#8
+
+Jun 23, 2021 5:38:41 AM com.drkiettran.sharing.MainVerticle
+INFO: *** request handler .../artifact
+Jun 23, 2021 5:38:41 AM com.drkiettran.sharing.MainVerticle
+INFO: Processing POST
+Jun 23, 2021 5:38:41 AM com.drkiettran.sharing.MainVerticle
+INFO: Received: {
+  "type": "artifact",
+  "spec_version": "2.1",
+  "id": "artifact--6f437177-6e48-5cf8-9d9e-872a2bddd641",
+  "mime_type": "application/zip",
+  "payload_bin": "ZX7HIBWPQA99NSUhEUgAAADI== ...",
+  "encryption_algorithm": "mime-type-indicated",
+  "decryption_key": "My voice is my passport"
+}
+Jun 23, 2021 5:38:41 AM com.drkiettran.sharing.StixCipher
+INFO: ---> [B@68177ec8
+Jun 23, 2021 5:38:41 AM com.drkiettran.sharing.StixProcessor
+INFO: Writing file /tmp/sharing/encrypted-artifact--6f437177-6e48-5cf8-9d9e-872a2bddd641.json
+Jun 23, 2021 5:38:41 AM com.drkiettran.sharing.StixProcessor
+INFO: stix id:artifact--6f437177-6e48-5cf8-9d9e-872a2bddd641
+Jun 23, 2021 5:38:41 AM com.drkiettran.sharing.StixProcessor
+INFO: encrypted stix artifact:44MHQYOkFzmg3/cIAfb9AXZLODyF7kMBZmon43izWt0O+eaHoQKSgaEo1fgx5fpc9+ZTUz3s2ypPsyvgUZgV+3/rJdR5LjODYTS1x4hBBCWCW3Nt3/9KB8B3tAL6Ld8ffmapkW0LyB+MyXbYcHMzZcRF1YTTZPppEnh6m34r2rghGxrfN7mm98GM8Z6ilSfhQyZpM7TE2GiKpsIrESRjO4g8MDb4iJHi6gt777Ss5osN69V4B/BprW9P+XJfYBOfGF5Qr2I4/EeQS6Cm8bCevffk47VHWW2nGMpYezsadR9E4UZynos97+Bgv9NUYyLvjhZie1hgt4ExGnbM/cPxK4AYJse64R73KcEISLje6NJBOetRrTN628FgMhN9hXz8WvnZaIzqnfIslRQXCkVqEg==
+Jun 23, 2021 5:38:41 AM com.drkiettran.sharing.StixProcessor
+INFO: ****: {
+  "type": "artifact",
+  "spec_version": "2.1",
+  "id": "artifact--6f437177-6e48-5cf8-9d9e-872a2bddd641",
+  "mime_type": "application/zip",
+  "payload_bin": "ZX7HIBWPQA99NSUhEUgAAADI== ...",
+  "encryption_algorithm": "mime-type-indicated",
+  "decryption_key": "My voice is my passport"
+}
+Jun 23, 2021 5:38:41 AM com.drkiettran.sharing.StixProcessor
+INFO: STIX object encrypted correctedly!
+Jun 23, 2021 5:38:41 AM com.drkiettran.sharing.MainVerticle
+INFO: Processing POST successfully!
+Jun 23, 2021 5:38:41 AM com.drkiettran.sharing.StixProcessor
+INFO: Write to file successfully!
+Jun 23, 2021 5:38:45 AM com.drkiettran.sharing.MainVerticle
+INFO: *** request handler .../artifact
+Jun 23, 2021 5:38:45 AM com.drkiettran.sharing.MainVerticle
+INFO: Processing GET
+Jun 23, 2021 5:38:45 AM com.drkiettran.sharing.MainVerticle
+INFO: received (GET): {
+  "type": "artifact",
+  "spec_version": "2.1",
+  "id": "artifact--6f437177-6e48-5cf8-9d9e-872a2bddd641"
+}
+Jun 23, 2021 5:38:45 AM com.drkiettran.sharing.StixProcessor
+INFO: Processing GET
+Jun 23, 2021 5:38:45 AM com.drkiettran.sharing.StixProcessor
+INFO: Comsuning data ...
+Jun 23, 2021 5:38:45 AM com.drkiettran.sharing.StixProcessor
+INFO: Successfully processed GET
+Jun 23, 2021 5:38:45 AM com.drkiettran.sharing.StixProcessor
+INFO: input: {
+  "id" : "artifact--6f437177-6e48-5cf8-9d9e-872a2bddd641",
+  "encrypted" : "44MHQYOkFzmg3/cIAfb9AXZLODyF7kMBZmon43izWt0O+eaHoQKSgaEo1fgx5fpc9+ZTUz3s2ypPsyvgUZgV+3/rJdR5LjODYTS1x4hBBCWCW3Nt3/9KB8B3tAL6Ld8ffmapkW0LyB+MyXbYcHMzZcRF1YTTZPppEnh6m34r2rghGxrfN7mm98GM8Z6ilSfhQyZpM7TE2GiKpsIrESRjO4g8MDb4iJHi6gt777Ss5osN69V4B/BprW9P+XJfYBOfGF5Qr2I4/EeQS6Cm8bCevffk47VHWW2nGMpYezsadR9E4UZynos97+Bgv9NUYyLvjhZie1hgt4ExGnbM/cPxK4AYJse64R73KcEISLje6NJBOetRrTN628FgMhN9hXz8WvnZaIzqnfIslRQXCkVqEg=="
+}
+Jun 23, 2021 5:38:45 AM com.drkiettran.sharing.StixProcessor
+INFO: process.get published!
+Jun 23, 2021 5:38:45 AM com.drkiettran.sharing.StixProcessor
+INFO: process.get receives: {
+  "id" : "artifact--6f437177-6e48-5cf8-9d9e-872a2bddd641",
+  "encrypted" : "44MHQYOkFzmg3/cIAfb9AXZLODyF7kMBZmon43izWt0O+eaHoQKSgaEo1fgx5fpc9+ZTUz3s2ypPsyvgUZgV+3/rJdR5LjODYTS1x4hBBCWCW3Nt3/9KB8B3tAL6Ld8ffmapkW0LyB+MyXbYcHMzZcRF1YTTZPppEnh6m34r2rghGxrfN7mm98GM8Z6ilSfhQyZpM7TE2GiKpsIrESRjO4g8MDb4iJHi6gt777Ss5osN69V4B/BprW9P+XJfYBOfGF5Qr2I4/EeQS6Cm8bCevffk47VHWW2nGMpYezsadR9E4UZynos97+Bgv9NUYyLvjhZie1hgt4ExGnbM/cPxK4AYJse64R73KcEISLje6NJBOetRrTN628FgMhN9hXz8WvnZaIzqnfIslRQXCkVqEg=="
+}
+Jun 23, 2021 5:38:45 AM com.drkiettran.sharing.StixProcessor
+INFO: plain:{
+  "type": "artifact",
+  "spec_version": "2.1",
+  "id": "artifact--6f437177-6e48-5cf8-9d9e-872a2bddd641",
+  "mime_type": "application/zip",
+  "payload_bin": "ZX7HIBWPQA99NSUhEUgAAADI== ...",
+  "encryption_algorithm": "mime-type-indicated",
+  "decryption_key": "My voice is my passport"
+}
+Jun 23, 2021 5:38:45 AM com.drkiettran.sharing.StixProcessor
+INFO: io.vertx.core.eventbus.impl.MessageImpl@7e465b6a
+Jun 23, 2021 5:38:45 AM com.drkiettran.sharing.StixCipher
+INFO: ---> [B@30ab211
+Jun 23, 2021 5:38:45 AM com.drkiettran.sharing.StixProcessor
+INFO: eoncded one-time: K7BTTA945FPC0MhZH1jv7yNDtqlUPl1PG6+PQKrZ4PU=
+Jun 23, 2021 5:38:45 AM com.drkiettran.sharing.StixProcessor
+INFO: verified:true
+Jun 23, 2021 5:38:45 AM com.drkiettran.sharing.StixProcessor
+INFO: Keylen:256
+Jun 23, 2021 5:38:45 AM com.drkiettran.sharing.StixProcessor
+INFO: clearedkey: +�SLx�S���YX��#C��T>]O��@����
+Jun 23, 2021 5:38:45 AM com.drkiettran.sharing.StixProcessor
+INFO: cleared text:{
+  "type": "artifact",
+  "spec_version": "2.1",
+  "id": "artifact--6f437177-6e48-5cf8-9d9e-872a2bddd641",
+  "mime_type": "application/zip",
+  "payload_bin": "ZX7HIBWPQA99NSUhEUgAAADI== ...",
+  "encryption_algorithm": "mime-type-indicated",
+  "decryption_key": "My voice is my passport"
+}
+Jun 23, 2021 5:38:45 AM com.drkiettran.sharing.StixProcessor
+INFO: done reverse...
+Jun 23, 2021 5:38:45 AM com.drkiettran.sharing.MainVerticle
+INFO: main.process.get: Got message: {
+  "encrypted_key" : "ZbRRSIKl75l/xXTrZRFgcIX8GXzuuMvjiFfpyMdESI6oEUqNBoVQWEXHuSLJWUmFu0caf3OC5zGnGwLcDdRQE4FLDB5KYdiqHYxaQRL5soakXtoeunM8/PWSoIhTX8FwScm9A32Q1GcoK/hsuPK9vdceYO12iALBPaePzBq1/plQSbncKJ/v7HE5dAxLIYmtC4URTWVMCK6PIVtGU1MNBUMdC3wn9a4vx1cbTSak3vKNEhr5xXN1etUpJvYlLeiMEznajpzn3FS8+Vh80soebrHBtaJV0p3vFm2B9HQfZM0wOGsy3llqT7/036SqKlgNm5scUBGZiIYsi0FBHf0dqw==",
+  "id" : "artifact--6f437177-6e48-5cf8-9d9e-872a2bddd641",
+  "iv" : "czjHhvL8OeBngt6Fm62QUQ==",
+  "encrypted" : "brDv2lhtoPaKV9GHgXGHCtTbUkPZOeaOLyh6qVq6msde7GLBwhOY/KVnBfCZzKtYjrFey5LQ9NBwQSXBFdmw1I1+m1jx/TkOyMXxB49eFcDARarR/sAD2np9jVad6OZZ2FXQggsWQVyEyJHmxyq/jL9ukrFYF1U5Dm91BPObrdyQm/sKnBmE8p7dfndEdBJHig1T8+ZWeLqN4GWifeZ+8SopaingIk4k6PRipEta77+uVIi1N4mJu1Nj5aNyHjXE/VTrgGwoxgCJSjsti+uZDwgpn7+PEzZdCZZ9TGvBChLXvvPO6xcjnjC0YD1Ea7ZaSdfqjIRKH+HUQrxQBz/NqzE5eovx9vkh1EUv0uvVWWwpKCHwhXDq2nct9aV1Iss/371+ecum66u3ZrfZjVYW0w==",
+  "signature" : "iyIabLQwYfUUYzi2U7RSXOKAjsRwEjrKhE1t0/VJ2RaJrUdkYp4U0C52fofSGRZLtX0uCgwoy4oAQuaXNWF101p8N8nckX5kUxHLg8nu8jBzxNOyihuRYhrydwd7dR5sNiQtOPrMzdKItCRUqFEgJ/rgFKWuub5cYfoOT2V3UvNFUv1PigRFWH2D50cu23yLLzmpURakpiOoyjbhbgE6THse5g9BBvcCRezDuIX1+hX10BXq1fwPcsO/EjfWu5hXKDgQ5JQto7vu5qqKAl32t/HMNPVyksKiQrh3fAiLH1G0YV20tOvzkLjqBAYwfpH9NZxujM1Yu6p8J8jub6hhaw==",
+  "length" : 288
+}
+
+
