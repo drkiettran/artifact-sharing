@@ -97,11 +97,22 @@ public class MainVerticle extends AbstractVerticle {
 	}
 
 	private String getSecretKey() {
-		return System.getenv("SECRET_KEY");
+		if (secretKeyStr == null) {
+			secretKeyStr = System.getenv("SECRET_KEY");
+		}
+		return secretKeyStr;
 	}
 
 	private String getIV() {
-		return System.getenv("IV");
+		if (ivStr == null) {
+			ivStr = System.getenv("IV");
+		}
+		return ivStr;
+	}
+
+	public MainVerticle(String secretKeyStr, String ivStr) {
+		this.secretKeyStr = secretKeyStr;
+		this.ivStr = ivStr;
 	}
 
 	/**
@@ -202,11 +213,11 @@ public class MainVerticle extends AbstractVerticle {
 		MessageConsumer<Buffer> consumer = vertx.eventBus().consumer(filename);
 		consumer.handler(message -> {
 			String key = new String(message.body().getBytes(), Charset.defaultCharset());
-			logger.info("PEM:" + message.body().toString());
+			logger.debug("PEM:" + message.body().toString());
 			key = key.substring(key.indexOf("-----BEGIN PRIVATE KEY-----"));
 			String privateKeyPEM = key.replace("-----BEGIN PRIVATE KEY-----", "").replaceAll(System.lineSeparator(), "")
 					.replace("-----END PRIVATE KEY-----", "");
-			logger.info("after trim: " + key);
+			logger.debug("after trim: " + key);
 			byte[] encoded = Base64.getDecoder().decode(privateKeyPEM);
 
 			KeyFactory keyFactory;
@@ -234,9 +245,9 @@ public class MainVerticle extends AbstractVerticle {
 
 		vertx.fileSystem().readFile(filename, result -> {
 			if (result.succeeded()) {
-				logger.info("input: " + Base64.getEncoder().encodeToString(result.result().getBytes()));
+				logger.debug("input: " + Base64.getEncoder().encodeToString(result.result().getBytes()));
 				vertx.eventBus().publish(filename, result.result());
-				logger.info("Placed content of " + filename + " on bus");
+				logger.debug("Placed content of " + filename + " on bus");
 			} else {
 				logger.error("Failed to read PrivateKey");
 			}
@@ -245,10 +256,10 @@ public class MainVerticle extends AbstractVerticle {
 	}
 
 	private void getPubKey(String keyType, String filename) {
-		logger.info(String.format("getPubKey: type: %s\nfilename: %s\n", keyType, filename));
+		logger.debug(String.format("getPubKey: type: %s\nfilename: %s\n", keyType, filename));
 		MessageConsumer<Buffer> consumer = vertx.eventBus().consumer(filename);
 		consumer.handler(message -> {
-			logger.info("DER:" + message.body().toString());
+			logger.debug("DER:" + message.body().toString());
 			X509EncodedKeySpec spec = new X509EncodedKeySpec(message.body().getBytes());
 			KeyFactory kf;
 			try {
@@ -274,19 +285,19 @@ public class MainVerticle extends AbstractVerticle {
 
 		vertx.fileSystem().readFile(filename, result -> {
 			if (result.succeeded()) {
-				logger.info("input: " + Base64.getEncoder().encodeToString(result.result().getBytes()));
+				logger.debug("input: " + Base64.getEncoder().encodeToString(result.result().getBytes()));
 				vertx.eventBus().publish(filename, result.result());
-				logger.info("Placed content of " + filename + " on bus");
+				logger.debug("Placed content of " + filename + " on bus");
 			} else {
 				logger.error("Failed to read PublicKey");
 			}
 		});
- 
+
 	}
 
 	private void showKeyInfo(String name, Key key) {
 
-		logger.info(String.format("name: %s\nalg: %s\nEncoded: %s\nformat:%s\n", name, key.getAlgorithm(),
+		logger.debug(String.format("name: %s\nalg: %s\nEncoded: %s\nformat:%s\n", name, key.getAlgorithm(),
 				Base64.getEncoder().encodeToString(key.getEncoded()), key.getFormat()));
 	}
 
@@ -343,23 +354,35 @@ public class MainVerticle extends AbstractVerticle {
 		}
 
 		if ("POST".equals(req.method().toString())) {
-			processPost(bh, resp);
-			req.response().setStatusCode(resp.getStatusCode()).putHeader("content-type", "application/json")
-					.end(resp.toString());
+			MessageConsumer<Buffer> consumer = vertx.eventBus().consumer("main.process.post");
+			consumer.handler(message -> {
+				String completion = new String(message.body().getBytes());
+				if ("true".equals(completion)) {
+					resp.setStatusCode(200);
+					resp.setReason("OK");
+				} else {
+					resp.setStatusCode(500);
+					resp.setReason("Unable to process STIX artifact");
+				}
+
+				req.response().setStatusCode(resp.getStatusCode()).putHeader("content-type", "application/json")
+						.end(resp.toString());
+			});
+
+			processPost(bh);
+
 			return;
 		} else if ("GET".equals(req.method().toString())) {
 			MessageConsumer<Buffer> consumer = vertx.eventBus().consumer("main.process.get");
 			consumer.handler(message -> {
 				String payload = new String(message.body().getBytes());
-				logger.info("main.process.get: Got message: " + payload);
+				logger.debug("main.process.get: Got message: " + payload);
 				req.response().setStatusCode(resp.getStatusCode()).putHeader("content-type", "application/json")
 						.end(payload);
 			});
 			processGet(bh);
 			return;
-		} else
-
-		{
+		} else {
 			resp.setStatusCode(405);
 			resp.setReason("Method not found!");
 			return;
@@ -380,12 +403,12 @@ public class MainVerticle extends AbstractVerticle {
 	 * @throws ExecutionException
 	 * @throws InterruptedException
 	 */
-	private Payload processGet(AsyncResult<Buffer> bh) throws InvalidKeyException, NoSuchAlgorithmException,
+	private void processGet(AsyncResult<Buffer> bh) throws InvalidKeyException, NoSuchAlgorithmException,
 			NoSuchPaddingException, InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException,
 			InterruptedException, ExecutionException {
 		logger.info("Processing GET");
-		logger.info("received (GET): " + bh.result().toString());
-		return StixProcessor.processGet(vertx, this.datastore, bh.result().toString(), ALG, secretKey, iv);
+		logger.debug("received (GET): " + bh.result().toString());
+		StixProcessor.processGet(vertx, this.datastore, bh.result().toString(), ALG, secretKey, iv);
 	}
 
 	/**
@@ -400,20 +423,12 @@ public class MainVerticle extends AbstractVerticle {
 	 * @throws IllegalBlockSizeException
 	 * @throws BadPaddingException
 	 */
-	private void processPost(AsyncResult<Buffer> bh, Response resp)
-			throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException,
-			InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException {
+	private Boolean processPost(AsyncResult<Buffer> bh) throws NoSuchAlgorithmException, NoSuchPaddingException,
+			InvalidKeyException, InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException {
 		logger.info("Processing POST");
-		logger.info("Received: " + bh.result().toString());
+		logger.debug("Received: " + bh.result().toString());
+		return StixProcessor.processPost(vertx, datastore, bh.result().toString(), ALG, secretKey, iv);
 
-		if (StixProcessor.processPost(vertx, this.datastore, bh.result().toString(), ALG, secretKey, iv)) {
-			resp.setStatusCode(200);
-			resp.setReason("OK");
-		} else {
-			resp.setStatusCode(500);
-			resp.setReason("Unable to process STIX artifact");
-		}
-		logger.info("Processing POST successfully!");
 	}
 
 	public String toString() {

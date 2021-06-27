@@ -40,13 +40,18 @@ public class StixProcessor {
 		vertx.fileSystem().writeFile(filename, buffer, new Handler<AsyncResult<Void>>() {
 			@Override
 			public void handle(AsyncResult<Void> result) {
+				String completion = "false";
 				if (result.succeeded()) {
 					logger.info("Write to file successfully!");
+					completion = "true";
 				} else {
 					logger.info("Failed to write file!");
 				}
+				Buffer buffer = Buffer.buffer(completion);
+				vertx.eventBus().publish("main.process.post", buffer);
 			}
 		});
+
 		logger.info("stix id:" + stix.getString("id"));
 		logger.info("encrypted stix artifact:" + cipherText);
 		String original = StixCipher.decrypt(alg, cipherText, secretKey, iv);
@@ -87,7 +92,7 @@ public class StixProcessor {
 	 * @throws InterruptedException
 	 * 
 	 */
-	public static Payload processGet(Vertx vertx, String dir, String reqStr, String alg, SecretKey secretKey, byte[] iv)
+	public static void processGet(Vertx vertx, String dir, String reqStr, String alg, SecretKey secretKey, byte[] iv)
 			throws InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException,
 			InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException, InterruptedException,
 			ExecutionException {
@@ -136,7 +141,7 @@ public class StixProcessor {
 						Base64.getDecoder().decode(signature));
 				logger.info("verified:" + verified);
 				logger.info("Keylen:" + Base64.getDecoder().decode(keyCipherText).length);
-				String clearedKey = StixCipher.decrypt(main.getClientPrivKey(),
+				byte[] clearedKey = StixCipher.decrypt(main.getClientPrivKey(),
 						Base64.getDecoder().decode(keyCipherText));
 				String clearedText = StixCipher.decrypt(alg, msgCipherText, onetimeKey, onetimeIv);
 				logger.info("clearedkey: " + clearedKey);
@@ -175,6 +180,6 @@ public class StixProcessor {
 		});
 
 		logger.info(String.format("processed GET"));
-		return payload;
+		return;
 	}
 }

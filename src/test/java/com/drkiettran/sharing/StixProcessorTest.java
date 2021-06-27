@@ -1,7 +1,7 @@
 package com.drkiettran.sharing;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 
@@ -9,11 +9,11 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
-import java.security.spec.InvalidKeySpecException;
 import java.util.Base64;
 import java.util.List;
 
 import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -34,9 +34,10 @@ import io.vertx.junit5.VertxTestContext;
 @ExtendWith(VertxExtension.class)
 public class StixProcessorTest {
 	private static Logger logger = LoggerFactory.getLogger(StixProcessorTest.class);
-	final static String ALG = "AES/GCM/NoPadding";
+	final static String ALG = "AES";
 
 	/* @formatter:off */
+	
 	public final String STIX_TEST = "{\n"
 			+ "  \"type\": \"artifact\",\n"
 			+ "  \"spec_version\": \"2.1\",\n"
@@ -72,7 +73,6 @@ public class StixProcessorTest {
 
 	private String stixString;
 	private JsonObject stix;
-	private JsonObject reqStr;
 
 	@BeforeAll
 	public static void setUpTest() throws IOException {
@@ -87,61 +87,60 @@ public class StixProcessorTest {
 	}
 
 	@BeforeEach
-	void deploy_verticle(Vertx vertx, VertxTestContext testContext) {
-		System.out.println("deploying vertx ...");
+	void start(Vertx vertx, VertxTestContext testContext) throws NoSuchAlgorithmException {
+		System.out.println("before ...");
+		secretKeyStr = SECRET_KEY;
+		ivStr = IV;
+		byte[] decodedKey = Base64.getDecoder().decode(SECRET_KEY.getBytes());
+		secretKey = new SecretKeySpec(decodedKey, 0, decodedKey.length, ALG);
+		iv = Base64.getDecoder().decode(IV);
+
+		stixString = STIX_TEST;
+		stix = new JsonObject(stixString);
+		new JsonObject(REQ_TEST);
+		System.out.println("secretKey: " + secretKeyStr);
+		System.out.println("iv:" + ivStr);
+
 		if (vertx.fileSystem().existsBlocking(TEST_DIR)) {
 			vertx.fileSystem().deleteRecursiveBlocking(TEST_DIR, true);
 		}
 		vertx.fileSystem().mkdirBlocking(TEST_DIR);
-		MainVerticle testVerticle = new MainVerticle();
+		MainVerticle testVerticle = new MainVerticle(secretKeyStr, ivStr);
 		vertx.deployVerticle(testVerticle, depOptions, testContext.succeeding(id -> testContext.completeNow()));
 		vertx.getOrCreateContext().put("main-verticle", testVerticle);
 	}
 
 	@AfterEach
-	void close_verticle(Vertx vertx, VertxTestContext testContext) {
-		System.out.println("closing vertx ...");
-
-		vertx.close();
-	}
-
-	@BeforeEach
-	public void setUp() throws NoSuchAlgorithmException, InvalidKeySpecException {
-		logger.info("Creating new Secret Key & IV!");
-		secretKey = StixCipher.getAESKey(256); // getSecretKey();
-		iv = StixCipher.getRandomNonce(128);
-		ivStr = Base64.getEncoder().encodeToString(iv);
-		secretKeyStr = Base64.getEncoder().encodeToString(secretKey.getEncoded());
-		stixString = STIX_TEST;
-		stix = new JsonObject(stixString);
-		reqStr = new JsonObject(REQ_TEST);
-		System.out.println("secretKey: " + secretKeyStr);
-		System.out.println("iv:" + ivStr);
+	public void finish(Vertx vertx, VertxTestContext testContext) {
+		System.out.println("after");
+		vertx.close(testContext.succeeding(response -> {
+			testContext.completeNow();
+		}));
 	}
 
 	@Test
 	public void shouldProcessPost(Vertx vertx, VertxTestContext testContext) throws Throwable {
+		System.out.println("testing post ...");
 		String filename = String.format("%s/encrypted-%s.json", TEST_DIR, stix.getString("id"));
 
-		Boolean status = StixProcessor.processPost(vertx, TEST_DIR, stixString, ALG, secretKey, iv);
+		MessageConsumer<Buffer> consumer = vertx.eventBus().consumer("main.process.post");
+		consumer.handler(message -> {
+			Buffer encryptedContent = vertx.fileSystem().readFileBlocking(filename);
 
-//		testContext.awaitCompletion(1, TimeUnit.SECONDS);
-//
-//		if (testContext.failed()) {
-//			throw testContext.causeOfFailure();
-//		}
+			System.out.println("content: " + encryptedContent.toString());
+			testContext.verify(() -> {
+				String completion = new String(message.body().getBytes());
+				assertThat(completion, equalTo("true"));
+				assertThat(encryptedContent, not(nullValue()));
 
-		Buffer encryptedContent = vertx.fileSystem().readFileBlocking(filename);
-
-		System.out.println("content: " + encryptedContent.toString());
-
-		assertThat(status, is(true));
-		assertThat(encryptedContent, not(nullValue()));
-
-		JsonObject stixJson = new JsonObject(encryptedContent.toString());
-		assertThat(stixJson.getString("id"), not(nullValue()));
-		assertThat(stixJson.getString("encrypted"), not(nullValue()));
-
+				JsonObject stixJson = new JsonObject(encryptedContent.toString());
+				assertThat(stixJson.getString("id"), not(nullValue()));
+				assertThat(stixJson.getString("encrypted"), not(nullValue()));
+			});
+			testContext.completeNow();
+		});
+		StixProcessor.processPost(vertx, TEST_DIR, REQ_TEST, ALG, secretKey, iv);
+		System.out.println("testing post exits ...");
 	}
 
 	/**
@@ -167,6 +166,10 @@ public class StixProcessorTest {
 		consumer.handler(message -> {
 			String payload = new String(message.body().getBytes());
 			System.out.println("main.process.get: Got message: " + payload);
+			testContext.verify(() -> {
+				assertThat(payload, not(nullValue()));
+			});
+			testContext.completeNow();
 		});
 
 		String filename = String.format("%s/encrypted-%s.json", TEST_DIR, stix.getString("id"));
@@ -177,14 +180,7 @@ public class StixProcessorTest {
 		System.out.println("iv:" + IV);
 		System.out.println("content:" + ENCRYPTED_STIX);
 
-		Payload payload = StixProcessor.processGet(vertx, TEST_DIR, REQ_TEST, ALG, secretKey, iv);
-//		testContext.awaitCompletion(1, TimeUnit.SECONDS);
-//
-//		if (testContext.failed()) {
-//			throw testContext.causeOfFailure();
-//		}
-		assertThat(payload, not(nullValue()));
-		System.out.println("payload: " + payload.toString());
+		StixProcessor.processGet(vertx, TEST_DIR, REQ_TEST, ALG, secretKey, iv);
 	}
 
 }

@@ -208,11 +208,11 @@ public class StixCipher {
 		return Base64.getEncoder().encodeToString(cipher.doFinal(plaintext));
 	}
 
-	public static String decrypt(PrivateKey key, byte[] ciphertext) throws NoSuchAlgorithmException,
+	public static byte[] decrypt(PrivateKey key, byte[] ciphertext) throws NoSuchAlgorithmException,
 			NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
 		Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
 		cipher.init(Cipher.DECRYPT_MODE, key);
-		return new String(cipher.doFinal(ciphertext));
+		return cipher.doFinal(ciphertext);
 	}
 
 	public static String sign(PrivateKey key, byte[] data) throws InvalidKeyException, Exception {
