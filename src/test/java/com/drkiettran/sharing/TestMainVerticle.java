@@ -81,8 +81,7 @@ public class TestMainVerticle {
 
 	@BeforeEach
 	void deploy_verticle(Vertx vertx, VertxTestContext testContext) {
-		System.out.println("before ...");
-		System.out.println("before ...");
+		System.out.println("BeforeEach ...");
 		secretKeyStr = SECRET_KEY;
 		ivStr = IV;
 		byte[] decodedKey = Base64.getDecoder().decode(SECRET_KEY.getBytes());
@@ -171,8 +170,8 @@ public class TestMainVerticle {
 		Payload payload = payloadJson.mapTo(Payload.class);
 
 		System.out.println("one-time key:" + payload.getEncrypted_key());
-		System.out.println("client-private: " + testVerticle.getClientPrivKey());
-		byte[] clearKey = StixCipher.decrypt(testVerticle.getClientPrivKey(),
+		System.out.println("client-private: " + testVerticle.getKeys().getClientPrivKey());
+		byte[] clearKey = StixCipher.decrypt(testVerticle.getKeys().getClientPrivKey(),
 				Base64.getDecoder().decode(payload.getEncrypted_key()));
 
 		System.out.println("clear key str: " + clearKey);
@@ -183,7 +182,7 @@ public class TestMainVerticle {
 		String clearText = StixCipher.decrypt("AES/GCM/NoPadding", payload.getEncrypted(), secretKey, iv);
 		logger.info("clearedkey: " + clearKey); // uni-code ctrl-shft letters
 		logger.info("cleared text:" + clearText);
-		Boolean verified = StixCipher.verifySignature(testVerticle.getServerPubKey(), clearText.getBytes(),
+		Boolean verified = StixCipher.verifySignature(testVerticle.getKeys().getServerPubKey(), clearText.getBytes(),
 				Base64.getDecoder().decode(payload.getSignature()));
 		logger.info("verified:" + verified);
 

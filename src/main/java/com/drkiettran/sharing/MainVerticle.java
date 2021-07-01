@@ -2,26 +2,17 @@ package com.drkiettran.sharing;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.charset.Charset;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
-import java.security.Key;
-import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
-import java.security.PublicKey;
 import java.security.spec.InvalidKeySpecException;
-import java.security.spec.PKCS8EncodedKeySpec;
-import java.security.spec.X509EncodedKeySpec;
-import java.util.Base64;
 import java.util.concurrent.ExecutionException;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
-import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
 
+import io.vertx.config.ConfigRetriever;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Promise;
@@ -32,7 +23,6 @@ import io.vertx.core.http.HttpServerOptions;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.impl.logging.Logger;
 import io.vertx.core.impl.logging.LoggerFactory;
-import io.vertx.core.net.JksOptions;
 
 /**
  * MainVerticle class: -Dvertx.options.blockedThreadCheckInterval=12345
@@ -44,56 +34,18 @@ import io.vertx.core.net.JksOptions;
  */
 public class MainVerticle extends AbstractVerticle {
 	public final Integer PORTNO = 9090;
-	private int portNo;
-	private Boolean tls;
-	private Boolean tlsMutual;
-	private String keystore;
-	private String keystorePassword;
-	private String truststore;
-	private String truststorePassword;
-	private String hostName;
-	private String datastore;
-	private SecretKey secretKey;
-	private byte[] iv;
 	private String secretKeyStr;
 	private String ivStr;
-	private String serverPubKeyFilename;
-	private String serverPrivKeyFilename;
-	private String clientPubKeyFilename;
-	private String clientPrivKeyFilename;
-	private PublicKey serverPubKey;
-	private PublicKey clientPubKey;
-	private PrivateKey clientPrivKey;
-	private PrivateKey serverPrivKey;
+
+	private MainVerticleConfig config;
+
+	private Keys keys;
+
 	final static Logger logger = LoggerFactory.getLogger(MainVerticle.class);
 	final static String ALG = "AES/GCM/NoPadding";
 
 	public String getIvStr() {
 		return ivStr;
-	}
-
-	public String getClientPubKeyFilename() {
-		return clientPubKeyFilename;
-	}
-
-	public String getClientPrivKeyFilename() {
-		return clientPrivKeyFilename;
-	}
-
-	public PublicKey getServerPubKey() {
-		return serverPubKey;
-	}
-
-	public PublicKey getClientPubKey() {
-		return clientPubKey;
-	}
-
-	public PrivateKey getClientPrivKey() {
-		return clientPrivKey;
-	}
-
-	public PrivateKey getServerPrivKey() {
-		return serverPrivKey;
 	}
 
 	private String getSecretKey() {
@@ -111,8 +63,13 @@ public class MainVerticle extends AbstractVerticle {
 	}
 
 	public MainVerticle(String secretKeyStr, String ivStr) {
+		logger.info("Constructing ..." + secretKeyStr + " -- " + ivStr);
 		this.secretKeyStr = secretKeyStr;
 		this.ivStr = ivStr;
+	}
+
+	public MainVerticle() {
+
 	}
 
 	/**
@@ -123,57 +80,60 @@ public class MainVerticle extends AbstractVerticle {
 	 * 	WHnM/EmaPTHNW7h+9bhqgZYTlz4uskZcoUba2rPxIms=
 	 * </code>
 	 * 
+	 * @throws InterruptedException
+	 * 
 	 */
 	@Override
 	public void start(Promise<Void> startPromise)
-			throws URISyntaxException, NoSuchAlgorithmException, InvalidKeySpecException {
+			throws URISyntaxException, NoSuchAlgorithmException, InvalidKeySpecException, InterruptedException {
 		logger.info("*** Sharing Service starts ...");
 		vertx.getOrCreateContext().put("main-verticle", this);
 		secretKeyStr = this.getSecretKey();
 		ivStr = this.getIV();
 		logger.info("SECRET_KEY:" + secretKeyStr);
 
-		getWebConfig();
-		logger.info(this);
+		ConfigRetriever retriever = ConfigRetriever.create(vertx);
 
-		if (secretKeyStr == null || secretKeyStr.isEmpty()) {
-			logger.info("Creating new Secret Key & IV!");
-			secretKey = StixCipher.getAESKey(256); // getSecretKey();
-			iv = StixCipher.getRandomNonce(128);
-			ivStr = Base64.getEncoder().encodeToString(iv);
-			secretKeyStr = Base64.getEncoder().encodeToString(secretKey.getEncoded());
-		} else {
-			logger.info("Reusing Secret Key & IV!");
-			byte[] decodedKey = Base64.getDecoder().decode(secretKeyStr.getBytes());
-			secretKey = new SecretKeySpec(decodedKey, 0, decodedKey.length, "AES");
-			iv = Base64.getDecoder().decode(ivStr.getBytes());
-			secretKeyStr = Base64.getEncoder().encodeToString(secretKey.getEncoded());
-			ivStr = Base64.getEncoder().encodeToString(iv);
-		}
+		retriever.getConfig(ar -> {
+			if (ar.failed()) {
+				logger.info("failed to retrieve configuration ...");
+				return;
+			} else {
+				config = new MainVerticleConfig(ar.result());
+				try {
+					keys = new Keys(vertx, config, this.getSecretKey(), this.getIvStr());
+					startHttpServer(startPromise);
+				} catch (NoSuchAlgorithmException e) {
+					e.printStackTrace();
+				}
+				logger.info(config);
+			}
+		});
 
-		String msg = String.format("\nsecret key: '%s' \nkey length: '%d' \nalgorithm: '%s', \niv: '%s'", secretKeyStr,
-				secretKey.getEncoded().length, secretKey.getAlgorithm(), ivStr);
-		logger.info(msg);
+	}
 
-		getPubKey("client", clientPubKeyFilename);
-		getPubKey("server", serverPubKeyFilename);
-		getPrivKey("client", clientPrivKeyFilename);
-		getPrivKey("server", serverPrivKeyFilename);
+	private void startHttpServer(Promise<Void> startPromise) {
+		logger.info("Starting HTTP Server ...");
 		HttpServerOptions serverOptions = new HttpServerOptions();
-		if (tls) {
+		if (config.isTls()) {
 			serverOptions.setSsl(true);
-			serverOptions.setKeyStoreOptions(getJksKeystoreOptions());
-			if (tlsMutual) {
-				serverOptions.setTrustStoreOptions(getJksTruststoreOptions());
+			serverOptions.setKeyStoreOptions(keys.getJksKeystoreOptions());
+			logger.info("jksKeystoreOptions ... " + keys.getJksKeystoreOptions());
+			logger.info("TLS is required ...");
+			if (config.isTlsMutual()) {
+				serverOptions.setTrustStoreOptions(keys.getJksTruststoreOptions());
 				serverOptions.setClientAuth(ClientAuth.REQUIRED);
+				logger.info("Mutual TLS is required");
+				logger.info("jksTruststoreOptions ... " + keys.getJksTruststoreOptions());
 			}
 		}
 
+		logger.info("Starting up server ...");
 		vertx.createHttpServer(serverOptions).requestHandler(req -> {
 			logger.info("*** request handler ..." + req.uri());
 			req.body(bh -> {
-
 				try {
+					logger.info("Processing request ...");
 					processRequest(req, bh);
 				} catch (URISyntaxException e) {
 					logger.error("Invalid URI: ", e);
@@ -198,137 +158,14 @@ public class MainVerticle extends AbstractVerticle {
 				}
 
 			});
-		}).listen(portNo, hostName, http -> {
+		}).listen(config.getPortNo(), config.getHostName(), http -> {
 			if (http.succeeded()) {
 				startPromise.complete();
-				logger.info("*** HTTP server started on port: " + portNo);
+				logger.info("*** HTTP server started on port: " + config.getPortNo());
 			} else {
 				startPromise.fail(http.cause());
 			}
 		});
-	}
-
-	private void getPrivKey(String keyType, String filename) {
-		logger.info(String.format("getPrivKey: type: %s\nfilename: %s\n", keyType, filename));
-		MessageConsumer<Buffer> consumer = vertx.eventBus().consumer(filename);
-		consumer.handler(message -> {
-			String key = new String(message.body().getBytes(), Charset.defaultCharset());
-			logger.debug("PEM:" + message.body().toString());
-			key = key.substring(key.indexOf("-----BEGIN PRIVATE KEY-----"));
-			String privateKeyPEM = key.replace("-----BEGIN PRIVATE KEY-----", "").replaceAll(System.lineSeparator(), "")
-					.replace("-----END PRIVATE KEY-----", "");
-			logger.debug("after trim: " + key);
-			byte[] encoded = Base64.getDecoder().decode(privateKeyPEM);
-
-			KeyFactory keyFactory;
-			try {
-				keyFactory = KeyFactory.getInstance("RSA");
-				PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(encoded);
-				if ("client".equals(keyType)) {
-					clientPrivKey = keyFactory.generatePrivate(keySpec);
-					this.showKeyInfo("client-private-key", clientPrivKey);
-				} else if ("server".equals(keyType)) {
-					serverPrivKey = keyFactory.generatePrivate(keySpec);
-					this.showKeyInfo("server-private-key", serverPrivKey);
-				} else {
-					logger.error("Invalid key type");
-				}
-			} catch (NoSuchAlgorithmException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (InvalidKeySpecException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-
-		});
-
-		vertx.fileSystem().readFile(filename, result -> {
-			if (result.succeeded()) {
-				logger.debug("input: " + Base64.getEncoder().encodeToString(result.result().getBytes()));
-				vertx.eventBus().publish(filename, result.result());
-				logger.debug("Placed content of " + filename + " on bus");
-			} else {
-				logger.error("Failed to read PrivateKey");
-			}
-		});
-
-	}
-
-	private void getPubKey(String keyType, String filename) {
-		logger.debug(String.format("getPubKey: type: %s\nfilename: %s\n", keyType, filename));
-		MessageConsumer<Buffer> consumer = vertx.eventBus().consumer(filename);
-		consumer.handler(message -> {
-			logger.debug("DER:" + message.body().toString());
-			X509EncodedKeySpec spec = new X509EncodedKeySpec(message.body().getBytes());
-			KeyFactory kf;
-			try {
-				kf = KeyFactory.getInstance("RSA");
-				if ("client".equals(keyType)) {
-					clientPubKey = kf.generatePublic(spec);
-					this.showKeyInfo("client-public-key", clientPubKey);
-				} else if ("server".equals(keyType)) {
-					serverPubKey = kf.generatePublic(spec);
-					this.showKeyInfo("server-public-key", serverPubKey);
-				} else {
-					logger.error("Invalid key type");
-				}
-			} catch (NoSuchAlgorithmException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (InvalidKeySpecException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-
-		});
-
-		vertx.fileSystem().readFile(filename, result -> {
-			if (result.succeeded()) {
-				logger.debug("input: " + Base64.getEncoder().encodeToString(result.result().getBytes()));
-				vertx.eventBus().publish(filename, result.result());
-				logger.debug("Placed content of " + filename + " on bus");
-			} else {
-				logger.error("Failed to read PublicKey");
-			}
-		});
-
-	}
-
-	private void showKeyInfo(String name, Key key) {
-
-		logger.debug(String.format("name: %s\nalg: %s\nEncoded: %s\nformat:%s\n", name, key.getAlgorithm(),
-				Base64.getEncoder().encodeToString(key.getEncoded()), key.getFormat()));
-	}
-
-	private JksOptions getJksKeystoreOptions() {
-		JksOptions options = new JksOptions();
-		options.setPath(keystore);
-		options.setPassword(keystorePassword);
-		return options;
-	}
-
-	private JksOptions getJksTruststoreOptions() {
-		JksOptions options = new JksOptions();
-		options.setPath(truststore);
-		options.setPassword(truststorePassword);
-		return options;
-	}
-
-	private void getWebConfig() {
-		this.hostName = config().getString("http.hostname");
-		this.portNo = config().getInteger("http.port");
-		this.tls = config().getBoolean("tls");
-		this.tlsMutual = config().getBoolean("tls_mutual");
-		this.keystore = config().getString("keystore");
-		this.keystorePassword = config().getString("keystore_password");
-		this.truststore = config().getString("truststore");
-		this.truststorePassword = config().getString("truststore_password");
-		this.datastore = config().getString("datastore");
-		this.serverPubKeyFilename = config().getJsonObject("certs").getString("server-public-key");
-		this.serverPrivKeyFilename = config().getJsonObject("certs").getString("server-private-key");
-		this.clientPubKeyFilename = config().getJsonObject("certs").getString("client-public-key");
-		this.clientPrivKeyFilename = config().getJsonObject("certs").getString("client-private-key");
 	}
 
 	private void processRequest(HttpServerRequest req, AsyncResult<Buffer> bh) throws URISyntaxException,
@@ -408,7 +245,8 @@ public class MainVerticle extends AbstractVerticle {
 			InterruptedException, ExecutionException {
 		logger.info("Processing GET");
 		logger.debug("received (GET): " + bh.result().toString());
-		StixProcessor.processGet(vertx, this.datastore, bh.result().toString(), ALG, secretKey, iv);
+		StixProcessor.processGet(vertx, config.getDatastore(), bh.result().toString(), ALG, keys.getSecretKey(),
+				keys.getIv());
 	}
 
 	/**
@@ -427,21 +265,12 @@ public class MainVerticle extends AbstractVerticle {
 			InvalidKeyException, InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException {
 		logger.info("Processing POST");
 		logger.debug("Received: " + bh.result().toString());
-		return StixProcessor.processPost(vertx, datastore, bh.result().toString(), ALG, secretKey, iv);
+		return StixProcessor.processPost(vertx, config.getDatastore(), bh.result().toString(), ALG, keys.getSecretKey(),
+				keys.getIv());
 
 	}
 
-	public String toString() {
-		StringBuilder sb = new StringBuilder("Main Verticle Cfg:");
-		sb.append("\n\thost name: ").append(hostName);
-		sb.append("\n\tport no: ").append(portNo);
-		sb.append("\n\ttls: ").append(tls);
-		sb.append("\n\tmutual tls: ").append(tlsMutual);
-		sb.append("\n\tkeystore: ").append(keystore);
-		sb.append("\n\tkeystore password: ").append(keystorePassword);
-		sb.append("\n\ttruststore: ").append(truststore);
-		sb.append("\n\ttruststore password: ").append(truststorePassword);
-		sb.append("\n\tdatastore: ").append(datastore);
-		return sb.toString();
+	public Keys getKeys() {
+		return keys;
 	}
 }

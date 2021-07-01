@@ -88,7 +88,7 @@ public class StixProcessorTest {
 
 	@BeforeEach
 	void start(Vertx vertx, VertxTestContext testContext) throws NoSuchAlgorithmException {
-		System.out.println("before ...");
+		System.out.println("BeforeEach ...");
 		secretKeyStr = SECRET_KEY;
 		ivStr = IV;
 		byte[] decodedKey = Base64.getDecoder().decode(SECRET_KEY.getBytes());
@@ -108,6 +108,7 @@ public class StixProcessorTest {
 		MainVerticle testVerticle = new MainVerticle(secretKeyStr, ivStr);
 		vertx.deployVerticle(testVerticle, depOptions, testContext.succeeding(id -> testContext.completeNow()));
 		vertx.getOrCreateContext().put("main-verticle", testVerticle);
+		logger.info("BeforeEach ends ...");
 	}
 
 	@AfterEach
@@ -162,7 +163,9 @@ public class StixProcessorTest {
 
 	@Test
 	public void shouldProcessGet(Vertx vertx, VertxTestContext testContext) throws Throwable {
+		logger.info("testing Get ...");
 		MessageConsumer<Buffer> consumer = vertx.eventBus().consumer("main.process.get");
+		logger.info("waiting for message main.process.get");
 		consumer.handler(message -> {
 			String payload = new String(message.body().getBytes());
 			System.out.println("main.process.get: Got message: " + payload);
@@ -181,6 +184,7 @@ public class StixProcessorTest {
 		System.out.println("content:" + ENCRYPTED_STIX);
 
 		StixProcessor.processGet(vertx, TEST_DIR, REQ_TEST, ALG, secretKey, iv);
+		logger.info("testing Get ends ...");
 	}
 
 }

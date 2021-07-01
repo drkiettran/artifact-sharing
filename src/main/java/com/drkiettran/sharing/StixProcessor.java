@@ -123,8 +123,8 @@ public class StixProcessor {
 
 				String msgCipherText = StixCipher.encrypt(alg, plain, onetimeKey, onetimeIv);
 				logger.info("encoded one-time: " + Base64.getEncoder().encodeToString(onetimeKey.getEncoded()));
-				String keyCipherText = StixCipher.encrypt(main.getClientPubKey(), onetimeKey.getEncoded());
-				String signature = StixCipher.sign(main.getServerPrivKey(), plain.getBytes());
+				String keyCipherText = StixCipher.encrypt(main.getKeys().getClientPubKey(), onetimeKey.getEncoded());
+				String signature = StixCipher.sign(main.getKeys().getServerPrivKey(), plain.getBytes());
 
 				payload.setId(stixId);
 				payload.setIv(Base64.getEncoder().encodeToString(onetimeIv));
@@ -137,11 +137,11 @@ public class StixProcessor {
 				 * Reverse - Verify signature with server public key - Decrypt one-time key with
 				 * client private key - Decrypt text with one-time key
 				 */
-				Boolean verified = StixCipher.verifySignature(main.getServerPubKey(), plain.getBytes(),
+				Boolean verified = StixCipher.verifySignature(main.getKeys().getServerPubKey(), plain.getBytes(),
 						Base64.getDecoder().decode(signature));
 				logger.info("verified:" + verified);
 				logger.info("Keylen:" + Base64.getDecoder().decode(keyCipherText).length);
-				byte[] clearedKey = StixCipher.decrypt(main.getClientPrivKey(),
+				byte[] clearedKey = StixCipher.decrypt(main.getKeys().getClientPrivKey(),
 						Base64.getDecoder().decode(keyCipherText));
 				String clearedText = StixCipher.decrypt(alg, msgCipherText, onetimeKey, onetimeIv);
 				logger.info("clearedkey: " + clearedKey);
