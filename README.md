@@ -106,7 +106,7 @@ To run your application:
 
 To run as a standalone:
 ```
-java -jar target/ddb-1.0.0-SNAPSHOT-fat.jar -conf conf/config.json
+java -jar target/sharing-1.0.0-SNAPSHOT-fat.jar -conf conf/config.json
 ```
 
 ## Help

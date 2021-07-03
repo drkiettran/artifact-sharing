@@ -1,5 +1,7 @@
 /target/
 !.mvn/wrapper/maven-wrapper.jar
+/test_dir/
+/certs/
 
 .attach*
 ### STS ###

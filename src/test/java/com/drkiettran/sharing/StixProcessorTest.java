@@ -15,6 +15,7 @@ import java.util.List;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -77,13 +78,19 @@ public class StixProcessorTest {
 	@BeforeAll
 	public static void setUpTest() throws IOException {
 		logger.info("BeforeAll: Loading config");
-		List<String> config = Files.readAllLines(Paths.get("./conf/config.json"));
+		String cfgFile = TestingUtil.prepare2Run(Vertx.vertx().fileSystem());
+		List<String> config = Files.readAllLines(Paths.get(cfgFile));
 		StringBuilder sb = new StringBuilder();
 		config.stream().forEach(line -> {
 			sb.append(line).append('\n');
 		});
 		logger.info("Loaded: " + sb.toString());
 		depOptions.setConfig(new JsonObject(sb.toString()));
+	}
+
+	@AfterAll
+	public static void cleanUp(Vertx vertx, VertxTestContext testContext) {		
+		TestingUtil.cleaningUp(vertx.fileSystem());
 	}
 
 	@BeforeEach
