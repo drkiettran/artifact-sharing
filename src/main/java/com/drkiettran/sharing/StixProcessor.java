@@ -49,6 +49,7 @@ public class StixProcessor {
 				}
 				Buffer buffer = Buffer.buffer(completion);
 				vertx.eventBus().publish("main.process.post", buffer);
+				logger.info("Completed! ...");
 			}
 		});
 

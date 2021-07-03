@@ -6,11 +6,8 @@ import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
-import java.util.List;
 
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
@@ -29,6 +26,7 @@ import io.vertx.core.eventbus.MessageConsumer;
 import io.vertx.core.impl.logging.Logger;
 import io.vertx.core.impl.logging.LoggerFactory;
 import io.vertx.core.json.JsonObject;
+import io.vertx.junit5.Checkpoint;
 import io.vertx.junit5.VertxExtension;
 import io.vertx.junit5.VertxTestContext;
 
@@ -63,7 +61,7 @@ public class StixProcessorTest {
 			+ "	 }";
 	/* @formatter:on */
 	private static final DeploymentOptions depOptions = new DeploymentOptions();
-	private static final String TEST_DIR = "./test_dir";
+
 	private SecretKey secretKey;
 
 	private byte[] iv;
@@ -74,23 +72,25 @@ public class StixProcessorTest {
 
 	private String stixString;
 	private JsonObject stix;
+	private MainVerticle testVerticle;
 
 	@BeforeAll
 	public static void setUpTest() throws IOException {
 		logger.info("BeforeAll: Loading config");
-		String cfgFile = TestingUtil.prepare2Run(Vertx.vertx().fileSystem());
-		List<String> config = Files.readAllLines(Paths.get(cfgFile));
-		StringBuilder sb = new StringBuilder();
-		config.stream().forEach(line -> {
-			sb.append(line).append('\n');
-		});
-		logger.info("Loaded: " + sb.toString());
-		depOptions.setConfig(new JsonObject(sb.toString()));
+		depOptions.setConfig(new JsonObject(
+				Vertx.vertx().fileSystem().readFileBlocking(TestingUtil.prepare2Run(Vertx.vertx().fileSystem()))));
+		logger.info("config:\n" + depOptions.getConfig().encodePrettily());
 	}
 
 	@AfterAll
-	public static void cleanUp(Vertx vertx, VertxTestContext testContext) {		
+	public static void cleanUp(Vertx vertx, VertxTestContext testContext) {
+		logger.info("@AfterAll ...");
 		TestingUtil.cleaningUp(vertx.fileSystem());
+		vertx.close(testContext.succeeding(response -> {
+			System.out.println("Closing off ...");
+			testContext.completeNow();
+		}));
+		logger.info("@AfterAll ends ...");
 	}
 
 	@BeforeEach
@@ -104,39 +104,44 @@ public class StixProcessorTest {
 
 		stixString = STIX_TEST;
 		stix = new JsonObject(stixString);
-		new JsonObject(REQ_TEST);
 		System.out.println("secretKey: " + secretKeyStr);
 		System.out.println("iv:" + ivStr);
 
-		if (vertx.fileSystem().existsBlocking(TEST_DIR)) {
-			vertx.fileSystem().deleteRecursiveBlocking(TEST_DIR, true);
-		}
-		vertx.fileSystem().mkdirBlocking(TEST_DIR);
-		MainVerticle testVerticle = new MainVerticle(secretKeyStr, ivStr);
+		testVerticle = new MainVerticle(secretKeyStr, ivStr);
 		vertx.deployVerticle(testVerticle, depOptions, testContext.succeeding(id -> testContext.completeNow()));
 		vertx.getOrCreateContext().put("main-verticle", testVerticle);
+
+		System.out.println("BeforeEach ends ...");
+
 		logger.info("BeforeEach ends ...");
 	}
 
 	@AfterEach
 	public void finish(Vertx vertx, VertxTestContext testContext) {
-		System.out.println("after");
+		System.out.println("@AfterEach ...");
 		vertx.close(testContext.succeeding(response -> {
+			System.out.println("Closing off ...");
 			testContext.completeNow();
 		}));
+		System.out.println("@AfterEach ends ...");
 	}
 
 	@Test
 	public void shouldProcessPost(Vertx vertx, VertxTestContext testContext) throws Throwable {
+		Checkpoint post = testContext.checkpoint();
+		Checkpoint read = testContext.checkpoint();
 		System.out.println("testing post ...");
-		String filename = String.format("%s/encrypted-%s.json", TEST_DIR, stix.getString("id"));
+		String filename = String.format("%s/encrypted-%s.json", depOptions.getConfig().getString("datastore"),
+				stix.getString("id"));
 
 		MessageConsumer<Buffer> consumer = vertx.eventBus().consumer("main.process.post");
 		consumer.handler(message -> {
+			post.flag();
 			Buffer encryptedContent = vertx.fileSystem().readFileBlocking(filename);
 
 			System.out.println("content: " + encryptedContent.toString());
 			testContext.verify(() -> {
+				read.flag();
 				String completion = new String(message.body().getBytes());
 				assertThat(completion, equalTo("true"));
 				assertThat(encryptedContent, not(nullValue()));
@@ -144,10 +149,11 @@ public class StixProcessorTest {
 				JsonObject stixJson = new JsonObject(encryptedContent.toString());
 				assertThat(stixJson.getString("id"), not(nullValue()));
 				assertThat(stixJson.getString("encrypted"), not(nullValue()));
+				testContext.completeNow();
 			});
-			testContext.completeNow();
+
 		});
-		StixProcessor.processPost(vertx, TEST_DIR, REQ_TEST, ALG, secretKey, iv);
+		StixProcessor.processPost(vertx, depOptions.getConfig().getString("datastore"), REQ_TEST, ALG, secretKey, iv);
 		System.out.println("testing post exits ...");
 	}
 
@@ -178,11 +184,13 @@ public class StixProcessorTest {
 			System.out.println("main.process.get: Got message: " + payload);
 			testContext.verify(() -> {
 				assertThat(payload, not(nullValue()));
+				testContext.completeNow();
 			});
-			testContext.completeNow();
+
 		});
 
-		String filename = String.format("%s/encrypted-%s.json", TEST_DIR, stix.getString("id"));
+		String filename = String.format("%s/encrypted-%s.json", depOptions.getConfig().getString("datastore"),
+				stix.getString("id"));
 		vertx.fileSystem().writeFileBlocking(filename, Buffer.buffer(ENCRYPTED_STIX));
 		secretKey = StixCipher.makeSecretKey(SECRET_KEY);
 		iv = Base64.getDecoder().decode(IV.getBytes());
@@ -190,7 +198,7 @@ public class StixProcessorTest {
 		System.out.println("iv:" + IV);
 		System.out.println("content:" + ENCRYPTED_STIX);
 
-		StixProcessor.processGet(vertx, TEST_DIR, REQ_TEST, ALG, secretKey, iv);
+		StixProcessor.processGet(vertx, depOptions.getConfig().getString("datastore"), REQ_TEST, ALG, secretKey, iv);
 		logger.info("testing Get ends ...");
 	}
 

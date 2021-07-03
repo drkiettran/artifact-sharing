@@ -136,8 +136,8 @@ public class TestingUtil {
 
 	public static void cleaningUp(FileSystem fs) {
 		logger.info("Cleaning up ...");
-		fs.deleteRecursiveBlocking(CERTS_DIR + File.separator + "/*", true);
-		fs.deleteRecursive(TEST_DIR + File.separator + "/*", true);
+		fs.deleteRecursiveBlocking(CERTS_DIR + File.separator, true);
+		fs.deleteRecursive(TEST_DIR + File.separator, true);
 		logger.info("Cleaning up done ...");
 	}
 

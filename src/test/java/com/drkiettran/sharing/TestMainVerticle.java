@@ -12,6 +12,7 @@ import java.util.List;
 
 import javax.crypto.spec.SecretKeySpec;
 
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -56,7 +57,6 @@ public class TestMainVerticle {
 			+ "  \"spec_version\": \"2.1\",\n"
 			+ "  \"id\": \"artifact--6f437177-6e48-5cf8-9d9e-872a2bddd641\"\n"
 			+ "}";
-	private static final String TEST_DIR = "./test_dir";
 	
 	public final String RESP_OK = "{\"status_code\":200,\"reason\":\"OK\"}";
 	/* @formatter:on */
@@ -70,13 +70,24 @@ public class TestMainVerticle {
 	@BeforeAll
 	public static void setUpTest() throws IOException {
 		logger.info("BeforeAll: Loading config");
-		List<String> config = Files.readAllLines(Paths.get("./conf/config.json"));
+		String cfgFile = TestingUtil.prepare2Run(Vertx.vertx().fileSystem());
+		List<String> config = Files.readAllLines(Paths.get(cfgFile));
 		StringBuilder sb = new StringBuilder();
 		config.stream().forEach(line -> {
 			sb.append(line).append('\n');
 		});
 		logger.info("Loaded: " + sb.toString());
 		depOptions.setConfig(new JsonObject(sb.toString()));
+	}
+
+	@AfterAll
+	public static void cleanUp(Vertx vertx, VertxTestContext testContext) {
+		System.out.println("@AfterAll ...");
+		TestingUtil.cleaningUp(Vertx.vertx().fileSystem());
+		vertx.close(testContext.succeeding(response -> {
+			testContext.completeNow();
+		}));
+		System.out.println("@AfterAll ends ...");
 	}
 
 	@BeforeEach
@@ -91,22 +102,19 @@ public class TestMainVerticle {
 		System.out.println("secretKey: " + secretKeyStr);
 		System.out.println("iv:" + ivStr);
 
-		if (vertx.fileSystem().existsBlocking(TEST_DIR)) {
-			vertx.fileSystem().deleteRecursiveBlocking(TEST_DIR, true);
-		}
-		vertx.fileSystem().mkdirBlocking(TEST_DIR);
 		testVerticle = new MainVerticle(secretKeyStr, ivStr);
 		vertx.deployVerticle(testVerticle, depOptions, testContext.succeeding(id -> testContext.completeNow()));
 		vertx.getOrCreateContext().put("main-verticle", testVerticle);
-
+		System.out.println("BeforeEach ends ...");
 	}
 
 	@AfterEach
 	public void finish(Vertx vertx, VertxTestContext testContext) {
-		System.out.println("after ...");
+		System.out.println("@AfterEach ...");
 		vertx.close(testContext.succeeding(response -> {
 			testContext.completeNow();
 		}));
+		System.out.println("@AfterEach ends ...");
 	}
 
 	@Test
@@ -139,6 +147,31 @@ public class TestMainVerticle {
 	}
 
 	@Test
+	public void shouldGetInvalidUrl(Vertx vertx, VertxTestContext testContext) {
+		JksOptions jksOptions = new JksOptions();
+		jksOptions.setPath("/home/student/certs/client.jks");
+		jksOptions.setPassword("changeit");
+
+		WebClientOptions options = new WebClientOptions();
+
+		options.setSsl(true);
+		options.setKeyStoreOptions(jksOptions);
+		options.setTrustStoreOptions(jksOptions);
+
+		WebClient client = WebClient.create(vertx, options);
+		client.get(9090, "localhost", "/artifactX").putHeader("Content-type", "application/json")
+				.sendBuffer(Buffer.buffer(REQ_TEST))
+				.onComplete(testContext.succeeding(buffer -> testContext.verify(() -> {
+					HttpResponse<Buffer> resp = buffer;
+					System.out.println("resp: " + resp.bodyAsString());
+					JsonObject payloadJson = resp.bodyAsJsonObject();
+					assertThat(payloadJson.getInteger("status_code"), is(400));
+					testContext.completeNow();
+				})));
+
+	}
+
+	@Test
 	public void shouldGet(Vertx vertx, VertxTestContext testContext) {
 		JsonObject reqJson = new JsonObject(REQ_TEST);
 
@@ -161,6 +194,56 @@ public class TestMainVerticle {
 					JsonObject payloadJson = resp.bodyAsJsonObject();
 					assertThat(payloadJson.getString("id"), equalTo(reqJson.getString("id")));
 					verify(vertx, payloadJson);
+					testContext.completeNow();
+				})));
+
+	}
+
+	@Test
+	public void shouldGetInvalidContentType(Vertx vertx, VertxTestContext testContext) {
+		JksOptions jksOptions = new JksOptions();
+		jksOptions.setPath("/home/student/certs/client.jks");
+		jksOptions.setPassword("changeit");
+
+		WebClientOptions options = new WebClientOptions();
+
+		options.setSsl(true);
+		options.setKeyStoreOptions(jksOptions);
+		options.setTrustStoreOptions(jksOptions);
+
+		WebClient client = WebClient.create(vertx, options);
+		client.get(9090, "localhost", "/artifact").putHeader("Content-type", "application/xml")
+				.sendBuffer(Buffer.buffer(REQ_TEST))
+				.onComplete(testContext.succeeding(buffer -> testContext.verify(() -> {
+					HttpResponse<Buffer> resp = buffer;
+					System.out.println("resp: " + resp.bodyAsString());
+					JsonObject payloadJson = resp.bodyAsJsonObject();
+					assertThat(payloadJson.getInteger("status_code"), is(400));
+					testContext.completeNow();
+				})));
+
+	}
+
+	@Test
+	public void shouldGetInvalidPutMethod(Vertx vertx, VertxTestContext testContext) {
+		JksOptions jksOptions = new JksOptions();
+		jksOptions.setPath("/home/student/certs/client.jks");
+		jksOptions.setPassword("changeit");
+
+		WebClientOptions options = new WebClientOptions();
+
+		options.setSsl(true);
+		options.setKeyStoreOptions(jksOptions);
+		options.setTrustStoreOptions(jksOptions);
+
+		WebClient client = WebClient.create(vertx, options);
+		client.put(9090, "localhost", "/artifact").putHeader("Content-type", "application/json")
+				.sendBuffer(Buffer.buffer(REQ_TEST))
+				.onComplete(testContext.succeeding(buffer -> testContext.verify(() -> {
+					HttpResponse<Buffer> resp = buffer;
+					System.out.println("resp: " + resp.bodyAsString());
+					JsonObject payloadJson = resp.bodyAsJsonObject();
+					assertThat(payloadJson.getInteger("status_code"), is(405));
 					testContext.completeNow();
 				})));
 

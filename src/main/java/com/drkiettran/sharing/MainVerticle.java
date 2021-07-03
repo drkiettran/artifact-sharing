@@ -222,6 +222,8 @@ public class MainVerticle extends AbstractVerticle {
 		} else {
 			resp.setStatusCode(405);
 			resp.setReason("Method not found!");
+			req.response().setStatusCode(resp.getStatusCode()).putHeader("content-type", "application/json")
+					.end(resp.toString());
 			return;
 		}
 	}
