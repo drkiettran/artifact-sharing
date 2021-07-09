@@ -11,17 +11,18 @@ import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.eventbus.MessageConsumer;
-import io.vertx.core.impl.logging.Logger;
-import io.vertx.core.impl.logging.LoggerFactory;
 import io.vertx.core.json.JsonObject;
 
 public class StixProcessor {
-	final static Logger logger = LoggerFactory.getLogger(StixProcessor.class);
+	private static final Logger logger = LoggerFactory.getLogger(StixProcessor.class);
 
 	public static Boolean processPost(Vertx vertx, String dir, String stixStr, String alg, SecretKey secretKey,
 			byte[] iv) throws InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException,
@@ -117,7 +118,7 @@ public class StixProcessor {
 				String plain = StixCipher.decrypt(alg, encrypted, secretKey, iv);
 				logger.info("plain:" + plain);
 				SecretKey onetimeKey = StixCipher.getAESKey(256);
-				logger.info(message);
+				logger.info("{}", message);
 				byte[] onetimeIv = StixCipher.getRandomNonce(16);
 
 				MainVerticle main = vertx.getOrCreateContext().get("main-verticle");

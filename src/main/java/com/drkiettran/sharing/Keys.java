@@ -14,15 +14,15 @@ import java.util.Base64;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
-import io.vertx.core.impl.logging.Logger;
-import io.vertx.core.impl.logging.LoggerFactory;
 import io.vertx.core.net.JksOptions;
 
 public class Keys {
-	final static Logger logger = LoggerFactory.getLogger(MainVerticle.class);
-
+	private static final Logger logger = LoggerFactory.getLogger(Keys.class);
 	private String keystore;
 	private String keystorePassword;
 	private String truststore;

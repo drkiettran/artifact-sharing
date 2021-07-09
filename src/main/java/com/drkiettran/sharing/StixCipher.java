@@ -22,13 +22,13 @@ import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.macasaet.fernet.Key;
 import com.macasaet.fernet.StringValidator;
 import com.macasaet.fernet.Token;
 import com.macasaet.fernet.Validator;
-
-import io.vertx.core.impl.logging.Logger;
-import io.vertx.core.impl.logging.LoggerFactory;
 
 /**
  * <code>
@@ -43,7 +43,7 @@ import io.vertx.core.impl.logging.LoggerFactory;
  *
  */
 public class StixCipher {
-	final static Logger logger = LoggerFactory.getLogger(StixCipher.class);
+	public static final Logger logger = LoggerFactory.getLogger(StixCipher.class);
 	final static String KEY_ALG = "PBKDF2WithHmacSHA256";
 	final static int ITERATION_COUNT = 65536;
 	final static int KEY_LENGTH = 256;

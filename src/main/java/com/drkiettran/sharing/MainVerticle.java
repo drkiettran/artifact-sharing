@@ -12,6 +12,9 @@ import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.vertx.config.ConfigRetriever;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.AsyncResult;
@@ -21,8 +24,6 @@ import io.vertx.core.eventbus.MessageConsumer;
 import io.vertx.core.http.ClientAuth;
 import io.vertx.core.http.HttpServerOptions;
 import io.vertx.core.http.HttpServerRequest;
-import io.vertx.core.impl.logging.Logger;
-import io.vertx.core.impl.logging.LoggerFactory;
 
 /**
  * MainVerticle class: -Dvertx.options.blockedThreadCheckInterval=12345
@@ -33,6 +34,8 @@ import io.vertx.core.impl.logging.LoggerFactory;
  * 
  */
 public class MainVerticle extends AbstractVerticle {
+	private final Logger logger = LoggerFactory.getLogger(MainVerticle.class);
+
 	public final Integer PORTNO = 9090;
 	private String secretKeyStr;
 	private String ivStr;
@@ -40,8 +43,6 @@ public class MainVerticle extends AbstractVerticle {
 	private MainVerticleConfig config;
 
 	private Keys keys;
-
-	final static Logger logger = LoggerFactory.getLogger(MainVerticle.class);
 	final static String ALG = "AES/GCM/NoPadding";
 
 	public String getIvStr() {
@@ -106,7 +107,7 @@ public class MainVerticle extends AbstractVerticle {
 				} catch (NoSuchAlgorithmException e) {
 					e.printStackTrace();
 				}
-				logger.info(config);
+				logger.info("{}", config);
 			}
 		});
 
@@ -136,7 +137,7 @@ public class MainVerticle extends AbstractVerticle {
 					logger.info("Processing request ...");
 					processRequest(req, bh);
 				} catch (URISyntaxException e) {
-					logger.error("Invalid URI: ", e);
+					logger.error("Invalid URI: " + e);
 				} catch (InvalidKeyException e) {
 					e.printStackTrace();
 				} catch (NoSuchAlgorithmException e) {
@@ -213,9 +214,12 @@ public class MainVerticle extends AbstractVerticle {
 			MessageConsumer<Buffer> consumer = vertx.eventBus().consumer("main.process.get");
 			consumer.handler(message -> {
 				String payload = new String(message.body().getBytes());
-				logger.debug("main.process.get: Got message: " + payload);
-				req.response().setStatusCode(resp.getStatusCode()).putHeader("content-type", "application/json")
-						.end(payload);
+				if (!req.response().ended()) {
+					logger.info("===> Sending response ***");
+					logger.info("main.process.get: Got message: " + payload);
+					req.response().setStatusCode(resp.getStatusCode()).putHeader("content-type", "application/json")
+							.end(payload);
+				}
 			});
 			processGet(bh);
 			return;
@@ -246,7 +250,7 @@ public class MainVerticle extends AbstractVerticle {
 			NoSuchPaddingException, InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException,
 			InterruptedException, ExecutionException {
 		logger.info("Processing GET");
-		logger.debug("received (GET): " + bh.result().toString());
+
 		StixProcessor.processGet(vertx, config.getDatastore(), bh.result().toString(), ALG, keys.getSecretKey(),
 				keys.getIv());
 	}
@@ -266,7 +270,7 @@ public class MainVerticle extends AbstractVerticle {
 	private Boolean processPost(AsyncResult<Buffer> bh) throws NoSuchAlgorithmException, NoSuchPaddingException,
 			InvalidKeyException, InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException {
 		logger.info("Processing POST");
-		logger.debug("Received: " + bh.result().toString());
+		logger.info("Received: " + bh.result().toString());
 		return StixProcessor.processPost(vertx, config.getDatastore(), bh.result().toString(), ALG, keys.getSecretKey(),
 				keys.getIv());
 
