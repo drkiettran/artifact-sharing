@@ -39,26 +39,16 @@ public class TestMainVerticle {
 
 	/* @formatter:off */
 	
-	public final String SECRET_KEY = "CaQ9KyRT9iPmgyDEyGxgjt/fzdS84bybYLKdYgINgJM=";
-	public final String IV = "V/gF6ibctMSNc/RZwaqjw7MCkhoXDrabiJiLqI6xaqqDIvPstTAW7UkbB7GCzBwuUBEnWYhBcUK6rOFJW49HrgsZLYOq2gaqEaDbMHmfzOVYdsuJBhvRFQnaOUhqQ/51st5rFF6W7/EzKFgW0kQoAV3C7PpWOaRj1n9ChzZP81c=";
+//	public final String SECRET_KEY = "CaQ9KyRT9iPmgyDEyGxgjt/fzdS84bybYLKdYgINgJM=";
+//	public final String IV = "V/gF6ibctMSNc/RZwaqjw7MCkhoXDrabiJiLqI6xaqqDIvPstTAW7UkbB7GCzBwuUBEnWYhBcUK6rOFJW49HrgsZLYOq2gaqEaDbMHmfzOVYdsuJBhvRFQnaOUhqQ/51st5rFF6W7/EzKFgW0kQoAV3C7PpWOaRj1n9ChzZP81c=";
+
+	public static final String SECRET_KEY = StixProcessorTest.SECRET_KEY;
+	public static final String IV = StixProcessorTest.IV;
+	public static final String STIX_TEST = StixProcessorTest.STIX_TEST;
 	
-	public final String STIX_TEST = "{\n"
-			+ "  \"type\": \"artifact\",\n"
-			+ "  \"spec_version\": \"2.1\",\n"
-			+ "  \"id\": \"artifact--6f437177-6e48-5cf8-9d9e-872a2bddd641\",\n"
-			+ "  \"mime_type\": \"application/zip\",\n"
-			+ "  \"payload_bin\": \"ZX7HIBWPQA99NSUhEUgAAADI== ...\",\n"
-			+ "  \"encryption_algorithm\": \"mime-type-indicated\",\n"
-			+ "  \"decryption_key\": \"My voice is my passport\"\n"
-			+ "}";
+	public static final String REQ_TEST = StixProcessorTest.REQ_TEST;
 	
-	public final String REQ_TEST = "{\n"
-			+ "  \"type\": \"artifact\",\n"
-			+ "  \"spec_version\": \"2.1\",\n"
-			+ "  \"id\": \"artifact--6f437177-6e48-5cf8-9d9e-872a2bddd641\"\n"
-			+ "}";
-	
-	public final String RESP_OK = "{\"status_code\":200,\"reason\":\"OK\"}";
+	public static final String RESP_OK = "{\"status_code\":200,\"reason\":\"OK\"}";
 	/* @formatter:on */
 
 	private String secretKeyStr;
@@ -70,6 +60,7 @@ public class TestMainVerticle {
 	@BeforeAll
 	public static void setUpTest() throws IOException {
 		logger.info("BeforeAll: Loading config");
+		TestingUtil.setUp();
 		String cfgFile = TestingUtil.prepare2Run(Vertx.vertx().fileSystem());
 		List<String> config = Files.readAllLines(Paths.get(cfgFile));
 		StringBuilder sb = new StringBuilder();
@@ -102,7 +93,7 @@ public class TestMainVerticle {
 		System.out.println("secretKey: " + secretKeyStr);
 		System.out.println("iv:" + ivStr);
 
-		testVerticle = new MainVerticle(secretKeyStr, ivStr);
+		testVerticle = new MainVerticle(secretKeyStr, ivStr, depOptions);
 		vertx.deployVerticle(testVerticle, depOptions, testContext.succeeding(id -> testContext.completeNow()));
 		vertx.getOrCreateContext().put("main-verticle", testVerticle);
 		System.out.println("BeforeEach ends ...");

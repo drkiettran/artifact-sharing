@@ -16,8 +16,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.vertx.config.ConfigRetriever;
+import io.vertx.config.ConfigRetrieverOptions;
+import io.vertx.config.ConfigStoreOptions;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.AsyncResult;
+import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Promise;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.eventbus.MessageConsumer;
@@ -43,6 +46,8 @@ public class MainVerticle extends AbstractVerticle {
 	private MainVerticleConfig config;
 
 	private Keys keys;
+
+	private DeploymentOptions depOptions;
 	final static String ALG = "AES/GCM/NoPadding";
 
 	public String getIvStr() {
@@ -63,10 +68,11 @@ public class MainVerticle extends AbstractVerticle {
 		return ivStr;
 	}
 
-	public MainVerticle(String secretKeyStr, String ivStr) {
+	public MainVerticle(String secretKeyStr, String ivStr, DeploymentOptions depOptions) {
 		logger.info("Constructing ..." + secretKeyStr + " -- " + ivStr);
 		this.secretKeyStr = secretKeyStr;
 		this.ivStr = ivStr;
+		this.depOptions = depOptions;
 	}
 
 	public MainVerticle() {
@@ -93,7 +99,17 @@ public class MainVerticle extends AbstractVerticle {
 		ivStr = this.getIV();
 		logger.info("SECRET_KEY:" + secretKeyStr);
 
-		ConfigRetriever retriever = ConfigRetriever.create(vertx);
+		ConfigRetriever retriever;
+
+		if (depOptions == null) {
+			logger.info("loading default config ...");
+			retriever = ConfigRetriever.create(vertx);
+		} else {
+			logger.info("loading from deployment options ...");
+			ConfigStoreOptions cso = new ConfigStoreOptions().setConfig(depOptions.getConfig()).setType("json");
+			ConfigRetrieverOptions cro = new ConfigRetrieverOptions().addStore(cso);
+			retriever = ConfigRetriever.create(vertx, cro);
+		}
 
 		retriever.getConfig(ar -> {
 			if (ar.failed()) {
@@ -107,7 +123,7 @@ public class MainVerticle extends AbstractVerticle {
 				} catch (NoSuchAlgorithmException e) {
 					e.printStackTrace();
 				}
-				logger.info("{}", config);
+				logger.info("--> {}", config);
 			}
 		});
 

@@ -32,12 +32,12 @@ import io.vertx.junit5.VertxTestContext;
 
 @ExtendWith(VertxExtension.class)
 public class StixProcessorTest {
-	private static Logger logger = LoggerFactory.getLogger(StixProcessorTest.class);
-	final static String ALG = "AES";
+	private static final Logger logger = LoggerFactory.getLogger(StixProcessorTest.class);
+	public static final String ALG = "AES";
 
 	/* @formatter:off */
 	
-	public final String STIX_TEST = "{\n"
+	public static final String STIX_TEST = "{\n"
 			+ "  \"type\": \"artifact\",\n"
 			+ "  \"spec_version\": \"2.1\",\n"
 			+ "  \"id\": \"artifact--6f437177-6e48-5cf8-9d9e-872a2bddd641\",\n"
@@ -47,15 +47,15 @@ public class StixProcessorTest {
 			+ "  \"decryption_key\": \"My voice is my passport\"\n"
 			+ "}";
 	
-	public final String REQ_TEST = "{\n"
+	public static final String REQ_TEST = "{\n"
 			+ "  \"type\": \"artifact\",\n"
 			+ "  \"spec_version\": \"2.1\",\n"
 			+ "  \"id\": \"artifact--6f437177-6e48-5cf8-9d9e-872a2bddd641\"\n"
 			+ "}";
 	
-	public final String SECRET_KEY = "LP+MDHeBcFphSGJ+bDn9hPTs7ZEJhXjcXfl2yijiPo0=";
-	public final String IV = "5DXrwdzDLdwWWretX3SRgFq8+6FZioCg7k30rWybEkZc6TJ5Hwp1rV1VcqzJE7KIh3u/mbrhSf98h2HqmhzjVtenhinCe4toFAXkQOKQUsc9ISbktCBtk1LXMN6l9CrsEJll46dBsFNOPZxa7mUAkdiqNPCKNBXxSbL7k/rOb34=";
-	public final String ENCRYPTED_STIX = "{\n"
+	public static final String SECRET_KEY = "LP+MDHeBcFphSGJ+bDn9hPTs7ZEJhXjcXfl2yijiPo0=";
+	public static final String IV = "5DXrwdzDLdwWWretX3SRgFq8+6FZioCg7k30rWybEkZc6TJ5Hwp1rV1VcqzJE7KIh3u/mbrhSf98h2HqmhzjVtenhinCe4toFAXkQOKQUsc9ISbktCBtk1LXMN6l9CrsEJll46dBsFNOPZxa7mUAkdiqNPCKNBXxSbL7k/rOb34=";
+	public static final String ENCRYPTED_STIX = "{\n"
 			+ "  	 \"id\" : \"artifact--6f437177-6e48-5cf8-9d9e-872a2bddd641\",\n"
 			+ "  	 \"encrypted\" : \"7APPmg2YLM/8fLcaxnBWJo4oBZ8GfZYm9uPpBwF4hrztmbeJoydrlyFotmf28cGIWW9ZMxodSYefS04ryElwRED657TFyg4KNM4n9X31+jaWRlUqWw8brVbAnWdn79Ux+nIlShA71RLHdizXtrx/2Hy4Yt6fk89SkmMjXZVh4Oi4QgwEeFcLmeFxJ5HrogcAgHCoGZpyE9ptFNH7vlQ200tQZvu7j4i88Aj3UjAYsrmCeTCBZJbWb9lDx/wwJPsgjde13X5vwktNUarwe5eDkFc6jimTSIB2Kxny4fuicTZackPspR611CbIR0KRlZBSN9cPKqmAH9aoSwtmGiKQUM5tTnKD6/NAzWj465tA+zEK5TYrX4MbOg77Wm35XAZmoWOT4AbzDledNz7nlYL41A==\"\n"
 			+ "	 }";
@@ -107,7 +107,7 @@ public class StixProcessorTest {
 		System.out.println("secretKey: " + secretKeyStr);
 		System.out.println("iv:" + ivStr);
 
-		testVerticle = new MainVerticle(secretKeyStr, ivStr);
+		testVerticle = new MainVerticle(secretKeyStr, ivStr, depOptions);
 		vertx.deployVerticle(testVerticle, depOptions, testContext.succeeding(id -> testContext.completeNow()));
 		vertx.getOrCreateContext().put("main-verticle", testVerticle);
 
