@@ -109,17 +109,16 @@ public class StixCipher {
 		return key;
 	}
 
-	public static SecretKey makeSecretKey(String secretKeyStr) {
+	public static SecretKey makeSecretKey(byte[] secretKey) {
 		logger.info("Reusing Secret Key");
-		byte[] decodedKey = Base64.getDecoder().decode(secretKeyStr.getBytes());
-		return new SecretKeySpec(decodedKey, 0, decodedKey.length, "AES");
+		return new SecretKeySpec(secretKey, 0, secretKey.length, "AES");
 	}
 
 	/**
 	 * Encrypt input using `alg` and given `secret key`.
 	 * 
 	 * @param alg
-	 * @param input
+	 * @param plainText
 	 * @param key
 	 * @return
 	 * @throws NoSuchAlgorithmException
@@ -129,15 +128,15 @@ public class StixCipher {
 	 * @throws IllegalBlockSizeException
 	 * @throws BadPaddingException
 	 */
-	public static String encrypt(String alg, String input, SecretKey key, byte[] iv)
+	public static byte[] encrypt(String alg, byte[] plainText, SecretKey key, byte[] iv)
 			throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException,
 			InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException {
-
-		Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
+		logger.info("plainText: {}", plainText);
+		Cipher cipher = Cipher.getInstance(alg);
 		cipher.init(Cipher.ENCRYPT_MODE, key, new GCMParameterSpec(128, iv));
-		byte[] cipherText = cipher.doFinal(input.getBytes());
-		logger.info("---> " + String.valueOf(cipherText));
-		return Base64.getEncoder().encodeToString(cipherText);
+		byte[] cipherText = cipher.doFinal(plainText);
+		logger.info("ciphertext: {} ", cipherText);
+		return cipherText;
 	}
 
 	/**
@@ -154,13 +153,15 @@ public class StixCipher {
 	 * @throws BadPaddingException
 	 * @throws InvalidAlgorithmParameterException
 	 */
-	public static String decrypt(String alg, String cipherText, SecretKey key, byte[] iv)
+	public static byte[] decrypt(String alg, byte[] cipherText, SecretKey key, byte[] iv)
 			throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException,
 			BadPaddingException, InvalidAlgorithmParameterException {
-		Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
+		logger.info("cipherText: {}", cipherText);
+		Cipher cipher = Cipher.getInstance(alg);
 		cipher.init(Cipher.DECRYPT_MODE, key, new GCMParameterSpec(128, iv));
-		byte[] plainText = cipher.doFinal(Base64.getDecoder().decode(cipherText));
-		return new String(plainText);
+		byte[] plainText = cipher.doFinal(cipherText);
+		logger.info("plain: {}", plainText);
+		return plainText;
 	}
 
 	/**
@@ -201,32 +202,50 @@ public class StixCipher {
 	 * @throws IllegalBlockSizeException
 	 * @throws BadPaddingException
 	 */
-	public static String encrypt(PublicKey key, byte[] plaintext) throws NoSuchAlgorithmException,
+	public static byte[] encrypt(PublicKey key, byte[] plainText) throws NoSuchAlgorithmException,
 			NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
+		logger.info("clear_text:{}, {}", plainText, plainText.length);
 		Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
 		cipher.init(Cipher.ENCRYPT_MODE, key);
-		return Base64.getEncoder().encodeToString(cipher.doFinal(plaintext));
+		byte[] cipherText = cipher.doFinal(plainText);
+		logger.info("cipher_text: {}, {}", cipherText, cipherText.length);
+		return cipherText;
 	}
 
-	public static byte[] decrypt(PrivateKey key, byte[] ciphertext) throws NoSuchAlgorithmException,
+	public static byte[] decrypt(PrivateKey key, byte[] cipherText) throws NoSuchAlgorithmException,
 			NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
+		logger.info("cipher text: {}, {}", cipherText, cipherText.length);
 		Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
 		cipher.init(Cipher.DECRYPT_MODE, key);
-		return cipher.doFinal(ciphertext);
+		return cipher.doFinal(cipherText);
 	}
 
-	public static String sign(PrivateKey key, byte[] data) throws InvalidKeyException, Exception {
-		Signature rsa = Signature.getInstance("SHA1withRSA");
+	public static byte[] sign(PrivateKey key, byte[] data) throws InvalidKeyException, Exception {
+		Signature rsa = Signature.getInstance("SHA256withRSA");
 		rsa.initSign(key);
 		rsa.update(data);
-		return Base64.getEncoder().encodeToString(rsa.sign());
+
+		byte[] signature = rsa.sign();
+		String encoded = Base64.getUrlEncoder().encodeToString(signature);
+		byte[] decoded = Base64.getUrlDecoder().decode(encoded);
+		logger.info("data: {}", data);
+		logger.info("signature: {}", signature);
+		logger.info("encoded: {}", encoded);
+		logger.info("decoded: {}", decoded);
+
+		return signature;
 	}
 
 	public static boolean verifySignature(PublicKey key, byte[] data, byte[] signature) throws Exception {
-		Signature sig = Signature.getInstance("SHA1withRSA");
-		sig.initVerify(key);
-		sig.update(data);
+		logger.info("data: {}", data);
+		logger.info("signature: {}", signature);
 
-		return sig.verify(signature);
+		Signature rsa = Signature.getInstance("SHA256withRSA");
+		rsa.initVerify(key);
+		rsa.update(data);
+
+		boolean verified = rsa.verify(signature);
+		logger.info("verified: {}", verified);
+		return verified;
 	}
 }

@@ -38,6 +38,8 @@ import io.vertx.core.http.HttpServerRequest;
  */
 public class MainVerticle extends AbstractVerticle {
 	private final Logger logger = LoggerFactory.getLogger(MainVerticle.class);
+	public final static String AES_GCM_NOPADDING = "AES/GCM/NoPadding";
+	public static final String AES = "AES";
 
 	public final Integer PORTNO = 9090;
 	private String secretKeyStr;
@@ -48,7 +50,6 @@ public class MainVerticle extends AbstractVerticle {
 	private Keys keys;
 
 	private DeploymentOptions depOptions;
-	final static String ALG = "AES/GCM/NoPadding";
 
 	public String getIvStr() {
 		return ivStr;
@@ -267,8 +268,8 @@ public class MainVerticle extends AbstractVerticle {
 			InterruptedException, ExecutionException {
 		logger.info("Processing GET");
 
-		StixProcessor.processGet(vertx, config.getDatastore(), bh.result().toString(), ALG, keys.getSecretKey(),
-				keys.getIv());
+		StixProcessor.processGet(vertx, config.getDatastore(), bh.result().toString(), AES_GCM_NOPADDING,
+				keys.getSecretKey(), keys.getIv());
 	}
 
 	/**
@@ -287,8 +288,8 @@ public class MainVerticle extends AbstractVerticle {
 			InvalidKeyException, InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException {
 		logger.info("Processing POST");
 		logger.info("Received: " + bh.result().toString());
-		return StixProcessor.processPost(vertx, config.getDatastore(), bh.result().toString(), ALG, keys.getSecretKey(),
-				keys.getIv());
+		return StixProcessor.processPost(vertx, config.getDatastore(), bh.result().toString(), AES_GCM_NOPADDING,
+				keys.getSecretKey(), keys.getIv());
 
 	}
 

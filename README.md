@@ -105,8 +105,64 @@ To run your application:
 ```
 
 To run as a standalone:
-```
+
+```shellscript
 java -jar target/sharing-1.0.0-SNAPSHOT-fat.jar -conf conf/config.json
+```
+
+or
+
+```shellscript
+java -Dvertx.logger-delegate-factory-class-name=io.vertx.core.logging.SLF4JLogDelegateFactory -jar target/sharing-1.0.0-SNAPSHOT-fat.jar run com.drkiettran.sharing.MainVerticle -conf conf/config.json
+```
+
+A working config.json file:
+
+```json
+{
+	"http.hostname": "0.0.0.0",
+	"http.port": 9090,
+	"tls": true,
+	"tls_mutual": true,
+	"keystore": "/home/student/certs/localhost.jks",
+	"keystore_password": "changeit",
+	"truststore": "/home/student/certs/localhost.jks",
+	"truststore_password": "changeit",
+	"datastore":"/tmp/sharing",
+	
+	"certs": {
+		"server-public-key":"/home/student/certs/server-pub-key.der",
+		"server-private-key": "/home/student/certs/server-priv-key.pem",
+		"client-public-key":"/home/student/certs/client-pub-key.der",
+		"client-private-key":"/home/student/certs/client-priv-key.pem"
+	}
+		
+}
+```
+
+Output of a successful run:
+
+```log
+DEBUG [main] LoggerFactory - Using io.vertx.core.logging.SLF4JLogDelegateFactory
+INFO [vert.x-eventloop-thread-1] MainVerticle - *** Sharing Service starts ...
+INFO [vert.x-eventloop-thread-1] MainVerticle - SECRET_KEY:null
+INFO [vert.x-eventloop-thread-1] MainVerticle - loading default config ...
+INFO [vert.x-eventloop-thread-1] ConfigRetrieverImpl - Config file path: /home/student/java/artifact-sharing/conf/config.json, format:json
+INFO [vert.x-eventloop-thread-1] Keys - Constructing keys ...
+INFO [vert.x-eventloop-thread-1] Keys - Creating new Secret Key & IV!
+INFO [vert.x-eventloop-thread-1] Keys - 
+secret key: 'pGZ3KlnkHCiKBLcpw+M9IuPFjImo/hU0ZNAn1jAni5M=' 
+key length: '32' 
+algorithm: 'AES', 
+iv: 'Drq5v/1dUTEndsJkJlIJRAGXjDqp52NAUNlMDVnzLMoSZL1gcwMhGQOWJYyMCpyrvpbw6e8xqWah6TaIE+3kSmpAvzlopG9AkI3w8TIxWzzBd6attA/sza1H/VmHIyWKZx4YvNvdllPbnAC0pCHzH5XouJjiZlRsCZpe4fJtpII='
+DEBUG [vert.x-eventloop-thread-1] Keys - getPubKey: type: server
+filename: /home/student/certs/server-pub-key.der
+
+...
+
+INFO [vert.x-eventloop-thread-1] MainVerticle - *** HTTP server started on port: 9090
+INFO [vert.x-eventloop-thread-0] VertxIsolatedDeployer - Succeeded in deploying verticle
+
 ```
 
 ## Help

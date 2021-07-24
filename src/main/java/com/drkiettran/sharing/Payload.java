@@ -53,13 +53,13 @@ public class Payload {
 		this.length = length;
 	}
 
-	public String getEncrypted_key() {
+	public String getEncryptedKey() {
 		return encryptedKey;
 	}
 
-	public void setEncrypted_key(String encrypted_key) {
-		validate("encrypted_key", encrypted_key);
-		this.encryptedKey = encrypted_key;
+	public void setEncryptedKey(String encryptedKey) {
+		validate("encrypted_key", encryptedKey);
+		this.encryptedKey = encryptedKey;
 	}
 
 	public String getSignature() {

@@ -35,41 +35,11 @@ public class StixProcessorTest {
 	private static final Logger logger = LoggerFactory.getLogger(StixProcessorTest.class);
 	public static final String ALG = "AES";
 
-	/* @formatter:off */
-	
-	public static final String STIX_TEST = "{\n"
-			+ "  \"type\": \"artifact\",\n"
-			+ "  \"spec_version\": \"2.1\",\n"
-			+ "  \"id\": \"artifact--6f437177-6e48-5cf8-9d9e-872a2bddd641\",\n"
-			+ "  \"mime_type\": \"application/zip\",\n"
-			+ "  \"payload_bin\": \"ZX7HIBWPQA99NSUhEUgAAADI== ...\",\n"
-			+ "  \"encryption_algorithm\": \"mime-type-indicated\",\n"
-			+ "  \"decryption_key\": \"My voice is my passport\"\n"
-			+ "}";
-	
-	public static final String REQ_TEST = "{\n"
-			+ "  \"type\": \"artifact\",\n"
-			+ "  \"spec_version\": \"2.1\",\n"
-			+ "  \"id\": \"artifact--6f437177-6e48-5cf8-9d9e-872a2bddd641\"\n"
-			+ "}";
-	
-	public static final String SECRET_KEY = "LP+MDHeBcFphSGJ+bDn9hPTs7ZEJhXjcXfl2yijiPo0=";
-	public static final String IV = "5DXrwdzDLdwWWretX3SRgFq8+6FZioCg7k30rWybEkZc6TJ5Hwp1rV1VcqzJE7KIh3u/mbrhSf98h2HqmhzjVtenhinCe4toFAXkQOKQUsc9ISbktCBtk1LXMN6l9CrsEJll46dBsFNOPZxa7mUAkdiqNPCKNBXxSbL7k/rOb34=";
-	public static final String ENCRYPTED_STIX = "{\n"
-			+ "  	 \"id\" : \"artifact--6f437177-6e48-5cf8-9d9e-872a2bddd641\",\n"
-			+ "  	 \"encrypted\" : \"7APPmg2YLM/8fLcaxnBWJo4oBZ8GfZYm9uPpBwF4hrztmbeJoydrlyFotmf28cGIWW9ZMxodSYefS04ryElwRED657TFyg4KNM4n9X31+jaWRlUqWw8brVbAnWdn79Ux+nIlShA71RLHdizXtrx/2Hy4Yt6fk89SkmMjXZVh4Oi4QgwEeFcLmeFxJ5HrogcAgHCoGZpyE9ptFNH7vlQ200tQZvu7j4i88Aj3UjAYsrmCeTCBZJbWb9lDx/wwJPsgjde13X5vwktNUarwe5eDkFc6jimTSIB2Kxny4fuicTZackPspR611CbIR0KRlZBSN9cPKqmAH9aoSwtmGiKQUM5tTnKD6/NAzWj465tA+zEK5TYrX4MbOg77Wm35XAZmoWOT4AbzDledNz7nlYL41A==\"\n"
-			+ "	 }";
-	/* @formatter:on */
 	private static final DeploymentOptions depOptions = new DeploymentOptions();
-
 	private SecretKey secretKey;
-
 	private byte[] iv;
-
 	private String ivStr;
-
 	private String secretKeyStr;
-
 	private String stixString;
 	private JsonObject stix;
 	private MainVerticle testVerticle;
@@ -87,7 +57,7 @@ public class StixProcessorTest {
 		logger.info("@AfterAll ...");
 		TestingUtil.cleaningUp(vertx.fileSystem());
 		vertx.close(testContext.succeeding(response -> {
-			System.out.println("Closing off ...");
+			logger.info("Closing off ...");
 			testContext.completeNow();
 		}));
 		logger.info("@AfterAll ends ...");
@@ -95,42 +65,42 @@ public class StixProcessorTest {
 
 	@BeforeEach
 	void start(Vertx vertx, VertxTestContext testContext) throws NoSuchAlgorithmException {
-		System.out.println("BeforeEach ...");
-		secretKeyStr = SECRET_KEY;
-		ivStr = IV;
-		byte[] decodedKey = Base64.getDecoder().decode(SECRET_KEY.getBytes());
+		logger.info("BeforeEach ...");
+		secretKeyStr = TestingUtil.SECRET_KEY;
+		ivStr = TestingUtil.IV;
+		byte[] decodedKey = Base64.getUrlDecoder().decode(TestingUtil.SECRET_KEY.getBytes());
 		secretKey = new SecretKeySpec(decodedKey, 0, decodedKey.length, ALG);
-		iv = Base64.getDecoder().decode(IV);
+		iv = Base64.getUrlDecoder().decode(TestingUtil.IV);
 
-		stixString = STIX_TEST;
+		stixString = TestingUtil.TEST_ARTIFACT;
 		stix = new JsonObject(stixString);
-		System.out.println("secretKey: " + secretKeyStr);
-		System.out.println("iv:" + ivStr);
+		logger.info("secretKey: " + secretKeyStr);
+		logger.info("iv:" + ivStr);
 
 		testVerticle = new MainVerticle(secretKeyStr, ivStr, depOptions);
 		vertx.deployVerticle(testVerticle, depOptions, testContext.succeeding(id -> testContext.completeNow()));
 		vertx.getOrCreateContext().put("main-verticle", testVerticle);
 
-		System.out.println("BeforeEach ends ...");
+		logger.info("BeforeEach ends ...");
 
 		logger.info("BeforeEach ends ...");
 	}
 
 	@AfterEach
 	public void finish(Vertx vertx, VertxTestContext testContext) {
-		System.out.println("@AfterEach ...");
+		logger.info("@AfterEach ...");
 		vertx.close(testContext.succeeding(response -> {
-			System.out.println("Closing off ...");
+			logger.info("Closing off ...");
 			testContext.completeNow();
 		}));
-		System.out.println("@AfterEach ends ...");
+		logger.info("@AfterEach ends ...");
 	}
 
 	@Test
 	public void shouldProcessPost(Vertx vertx, VertxTestContext testContext) throws Throwable {
 		Checkpoint post = testContext.checkpoint();
 		Checkpoint read = testContext.checkpoint();
-		System.out.println("testing post ...");
+		logger.info("testing post ...");
 		String filename = String.format("%s/encrypted-%s.json", depOptions.getConfig().getString("datastore"),
 				stix.getString("id"));
 
@@ -139,7 +109,7 @@ public class StixProcessorTest {
 			post.flag();
 			Buffer encryptedContent = vertx.fileSystem().readFileBlocking(filename);
 
-			System.out.println("content: " + encryptedContent.toString());
+			logger.info("content: " + encryptedContent.toString());
 			testContext.verify(() -> {
 				read.flag();
 				String completion = new String(message.body().getBytes());
@@ -153,8 +123,9 @@ public class StixProcessorTest {
 			});
 
 		});
-		StixProcessor.processPost(vertx, depOptions.getConfig().getString("datastore"), REQ_TEST, ALG, secretKey, iv);
-		System.out.println("testing post exits ...");
+		StixProcessor.processPost(vertx, depOptions.getConfig().getString("datastore"), TestingUtil.TEST_ARTIFACT,
+				TestingUtil.AES_GCM_NOPADDING, secretKey, iv);
+		logger.info("testing post exits ...");
 	}
 
 	/**
@@ -181,7 +152,7 @@ public class StixProcessorTest {
 		logger.info("waiting for message main.process.get");
 		consumer.handler(message -> {
 			String payload = new String(message.body().getBytes());
-			System.out.println("main.process.get: Got message: " + payload);
+			logger.info("main.process.get: Got message: " + payload);
 			testContext.verify(() -> {
 				assertThat(payload, not(nullValue()));
 				testContext.completeNow();
@@ -191,14 +162,15 @@ public class StixProcessorTest {
 
 		String filename = String.format("%s/encrypted-%s.json", depOptions.getConfig().getString("datastore"),
 				stix.getString("id"));
-		vertx.fileSystem().writeFileBlocking(filename, Buffer.buffer(ENCRYPTED_STIX));
-		secretKey = StixCipher.makeSecretKey(SECRET_KEY);
-		iv = Base64.getDecoder().decode(IV.getBytes());
-		System.out.println("secretKey:" + SECRET_KEY);
-		System.out.println("iv:" + IV);
-		System.out.println("content:" + ENCRYPTED_STIX);
+		vertx.fileSystem().writeFileBlocking(filename, Buffer.buffer(TestingUtil.ENCRYPTED_ARTIFACT));
+		secretKey = StixCipher.makeSecretKey(Base64.getUrlDecoder().decode(TestingUtil.SECRET_KEY));
+		iv = Base64.getUrlDecoder().decode(TestingUtil.IV.getBytes());
+		logger.info("secretKey:" + TestingUtil.SECRET_KEY);
+		logger.info("iv:" + TestingUtil.IV);
+		logger.info("content:" + TestingUtil.ENCRYPTED_ARTIFACT);
 
-		StixProcessor.processGet(vertx, depOptions.getConfig().getString("datastore"), REQ_TEST, ALG, secretKey, iv);
+		StixProcessor.processGet(vertx, depOptions.getConfig().getString("datastore"), TestingUtil.TEST_ARTIFACT, ALG,
+				secretKey, iv);
 		logger.info("testing Get ends ...");
 	}
 

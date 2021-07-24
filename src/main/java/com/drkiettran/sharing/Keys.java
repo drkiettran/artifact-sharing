@@ -32,6 +32,11 @@ public class Keys {
 	private String secretKeyStr;
 	private String ivStr;
 	private PublicKey serverPubKey;
+	private PublicKey clientPubKey;
+	private PrivateKey clientPrivKey;
+	private PrivateKey serverPrivKey;
+
+	private Vertx vertx;
 
 	public String getKeystore() {
 		return keystore;
@@ -69,12 +74,6 @@ public class Keys {
 		return serverPrivKey;
 	}
 
-	private PublicKey clientPubKey;
-	private PrivateKey clientPrivKey;
-	private PrivateKey serverPrivKey;
-
-	private Vertx vertx;
-
 	public Keys(Vertx vertx, MainVerticleConfig config, String secretKeyStr, String ivStr)
 			throws NoSuchAlgorithmException {
 		logger.info("Constructing keys ...");
@@ -95,16 +94,42 @@ public class Keys {
 		logger.info("Constructing keys ends ...");
 	}
 
+	public JksOptions getJksKeystoreOptions() {
+		JksOptions options = new JksOptions();
+		options.setPath(keystore);
+		options.setPassword(keystorePassword);
+		return options;
+	}
+
+	public JksOptions getJksTruststoreOptions() {
+		JksOptions options = new JksOptions();
+		options.setPath(truststore);
+		options.setPassword(truststorePassword);
+		return options;
+	}
+
+	public SecretKey getSecretKey() {
+		return secretKey;
+	}
+
+	public String getIvStr() {
+		return ivStr;
+	}
+
+	public byte[] getIv() {
+		return iv;
+	}
+
 	private void getPrivKey(String keyType, String filename) {
 		logger.info(String.format("getPrivKey: type: %s\nfilename: %s\n", keyType, filename));
 
 		Buffer buffer = vertx.fileSystem().readFileBlocking(filename);
 		String key = new String(buffer.getBytes(), Charset.defaultCharset());
-		logger.info("PEM:" + buffer.toString());
+		logger.debug("PEM:" + buffer.toString());
 		key = key.substring(key.indexOf("-----BEGIN PRIVATE KEY-----"));
 		String privateKeyPEM = key.replace("-----BEGIN PRIVATE KEY-----", "").replaceAll(System.lineSeparator(), "")
 				.replace("-----END PRIVATE KEY-----", "");
-		logger.info("after trim: " + key);
+		logger.debug("after trim: " + key);
 		byte[] encoded = Base64.getDecoder().decode(privateKeyPEM);
 
 		KeyFactory keyFactory;
@@ -129,9 +154,9 @@ public class Keys {
 	}
 
 	private void getPubKey(String keyType, String filename) {
-		logger.info(String.format("getPubKey: type: %s\nfilename: %s\n", keyType, filename));
+		logger.debug(String.format("getPubKey: type: %s\nfilename: %s\n", keyType, filename));
 		Buffer buffer = vertx.fileSystem().readFileBlocking(filename);
-		logger.info("DER:" + buffer.toString());
+		logger.debug("DER:" + buffer.toString());
 		X509EncodedKeySpec spec = new X509EncodedKeySpec(buffer.getBytes());
 		KeyFactory kf;
 		try {
@@ -158,15 +183,15 @@ public class Keys {
 			logger.info("Creating new Secret Key & IV!");
 			secretKey = StixCipher.getAESKey(256); // getSecretKey();
 			iv = StixCipher.getRandomNonce(128);
-			ivStr = Base64.getEncoder().encodeToString(iv);
-			secretKeyStr = Base64.getEncoder().encodeToString(secretKey.getEncoded());
+			ivStr = Base64.getUrlEncoder().encodeToString(iv);
+			secretKeyStr = Base64.getUrlEncoder().encodeToString(secretKey.getEncoded());
 		} else {
 			logger.info("Reusing Secret Key & IV!");
-			byte[] decodedKey = Base64.getDecoder().decode(secretKeyStr.getBytes());
+			byte[] decodedKey = Base64.getUrlDecoder().decode(secretKeyStr.getBytes());
 			secretKey = new SecretKeySpec(decodedKey, 0, decodedKey.length, "AES");
-			iv = Base64.getDecoder().decode(ivStr.getBytes());
-			secretKeyStr = Base64.getEncoder().encodeToString(secretKey.getEncoded());
-			ivStr = Base64.getEncoder().encodeToString(iv);
+			iv = Base64.getUrlDecoder().decode(ivStr.getBytes());
+			secretKeyStr = Base64.getUrlEncoder().encodeToString(secretKey.getEncoded());
+			ivStr = Base64.getUrlEncoder().encodeToString(iv);
 		}
 
 		String msg = String.format("\nsecret key: '%s' \nkey length: '%d' \nalgorithm: '%s', \niv: '%s'", secretKeyStr,
@@ -176,29 +201,7 @@ public class Keys {
 
 	private void showKeyInfo(String name, Key key) {
 		logger.info(String.format("name: %s\nalg: %s\nEncoded: %s\nformat:%s\n", name, key.getAlgorithm(),
-				Base64.getEncoder().encodeToString(key.getEncoded()), key.getFormat()));
-	}
-
-	public JksOptions getJksKeystoreOptions() {
-		JksOptions options = new JksOptions();
-		options.setPath(keystore);
-		options.setPassword(keystorePassword);
-		return options;
-	}
-
-	public JksOptions getJksTruststoreOptions() {
-		JksOptions options = new JksOptions();
-		options.setPath(truststore);
-		options.setPassword(truststorePassword);
-		return options;
-	}
-
-	public SecretKey getSecretKey() {
-		return secretKey;
-	}
-
-	public byte[] getIv() {
-		return iv;
+				Base64.getUrlEncoder().encodeToString(key.getEncoded()), key.getFormat()));
 	}
 
 }
