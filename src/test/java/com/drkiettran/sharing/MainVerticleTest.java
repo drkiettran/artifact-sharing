@@ -224,7 +224,7 @@ public class MainVerticleTest {
 
 		logger.info("one-time key:" + payload.getEncryptedKey());
 		logger.info("client-private: " + testVerticle.getKeys().getClientPrivKey());
-		byte[] clearKey = StixCipher.decrypt(testVerticle.getKeys().getClientPrivKey(),
+		byte[] clearKey = ArtifactCipher.decrypt(testVerticle.getKeys().getClientPrivKey(),
 				Base64.getUrlDecoder().decode(payload.getEncryptedKey()));
 
 		logger.info("clear key str: " + clearKey);
@@ -232,11 +232,11 @@ public class MainVerticleTest {
 		secretKey = new SecretKeySpec(clearKey, 0, clearKey.length, AES);
 		iv = Base64.getUrlDecoder().decode(payload.getIv());
 
-		String clearText = new String(StixCipher.decrypt(AES_GCM_NO_PADDING,
+		String clearText = new String(ArtifactCipher.pkcsDecrypt(AES_GCM_NO_PADDING,
 				Base64.getUrlDecoder().decode(payload.getEncrypted().getBytes()), secretKey, iv));
 		logger.info("clearedkey: " + clearKey); // uni-code ctrl-shft letters
 		logger.info("cleared text:" + clearText);
-		Boolean verified = StixCipher.verifySignature(testVerticle.getKeys().getServerPubKey(), clearText.getBytes(),
+		Boolean verified = ArtifactCipher.verifySignature(testVerticle.getKeys().getServerPubKey(), clearText.getBytes(),
 				Base64.getUrlDecoder().decode(payload.getSignature()));
 		logger.info("verified:" + verified);
 

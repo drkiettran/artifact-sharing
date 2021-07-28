@@ -42,16 +42,16 @@ import com.macasaet.fernet.Validator;
  * @author student
  *
  */
-public class StixCipher {
-	public static final Logger logger = LoggerFactory.getLogger(StixCipher.class);
+public class ArtifactCipher {
+	public static final Logger logger = LoggerFactory.getLogger(ArtifactCipher.class);
 	final static String KEY_ALG = "PBKDF2WithHmacSHA256";
 	final static int ITERATION_COUNT = 65536;
 	final static int KEY_LENGTH = 256;
 
 	public static SecretKey getSecretKey(String alg) throws NoSuchAlgorithmException, InvalidKeySpecException {
 		String password = "ToP$eCr3t_P@$$w0Rd";
-		String salt = StixCipher.generateSalt();
-		return StixCipher.generateKey(password, salt, alg);
+		String salt = ArtifactCipher.generateSalt();
+		return ArtifactCipher.generateKey(password, salt, alg);
 	}
 
 	/**
@@ -128,7 +128,7 @@ public class StixCipher {
 	 * @throws IllegalBlockSizeException
 	 * @throws BadPaddingException
 	 */
-	public static byte[] encrypt(String alg, byte[] plainText, SecretKey key, byte[] iv)
+	public static byte[] pkcsEncrypt(String alg, byte[] plainText, SecretKey key, byte[] iv)
 			throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException,
 			InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException {
 		logger.info("plainText: {}", plainText);
@@ -153,7 +153,7 @@ public class StixCipher {
 	 * @throws BadPaddingException
 	 * @throws InvalidAlgorithmParameterException
 	 */
-	public static byte[] decrypt(String alg, byte[] cipherText, SecretKey key, byte[] iv)
+	public static byte[] pkcsDecrypt(String alg, byte[] cipherText, SecretKey key, byte[] iv)
 			throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException,
 			BadPaddingException, InvalidAlgorithmParameterException {
 		logger.info("cipherText: {}", cipherText);

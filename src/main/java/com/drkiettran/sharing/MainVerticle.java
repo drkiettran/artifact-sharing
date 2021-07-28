@@ -27,6 +27,7 @@ import io.vertx.core.eventbus.MessageConsumer;
 import io.vertx.core.http.ClientAuth;
 import io.vertx.core.http.HttpServerOptions;
 import io.vertx.core.http.HttpServerRequest;
+import io.vertx.core.json.JsonObject;
 
 /**
  * MainVerticle class: -Dvertx.options.blockedThreadCheckInterval=12345
@@ -189,6 +190,7 @@ public class MainVerticle extends AbstractVerticle {
 	private void processRequest(HttpServerRequest req, AsyncResult<Buffer> bh) throws URISyntaxException,
 			InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidAlgorithmParameterException,
 			IllegalBlockSizeException, BadPaddingException, InterruptedException, ExecutionException {
+		logger.info("headers: {}", req.headers());
 		Response resp = new Response();
 		URI uri = new URI(req.absoluteURI());
 
@@ -200,7 +202,7 @@ public class MainVerticle extends AbstractVerticle {
 			return;
 		}
 
-		if (!req.headers().get("Content-type").equals("application/json")) {
+		if (!"application/json".equals(req.headers().get("Content-type"))) {
 			resp.setStatusCode(400);
 			resp.setReason("Invalid content-type");
 			req.response().setStatusCode(resp.getStatusCode()).putHeader("content-type", "application/json")
@@ -219,18 +221,27 @@ public class MainVerticle extends AbstractVerticle {
 					resp.setStatusCode(500);
 					resp.setReason("Unable to process STIX artifact");
 				}
-
-				req.response().setStatusCode(resp.getStatusCode()).putHeader("content-type", "application/json")
-						.end(resp.toString());
+				if (!req.response().ended()) {
+					req.response().setStatusCode(resp.getStatusCode()).putHeader("content-type", "application/json")
+							.end(resp.toString());
+				}
 			});
 
-			processPost(bh);
+			processPost(req, resp, bh);
 
 			return;
 		} else if ("GET".equals(req.method().toString())) {
 			MessageConsumer<Buffer> consumer = vertx.eventBus().consumer("main.process.get");
 			consumer.handler(message -> {
 				String payload = new String(message.body().getBytes());
+				JsonObject respBody = new JsonObject(payload);
+				if (respBody.getString("reason") == null) {
+					resp.setStatusCode(200);
+					resp.setReason("OK");
+				} else {
+					resp.setStatusCode(500);
+					resp.setReason("*** error ***");
+				}
 				if (!req.response().ended()) {
 					logger.info("===> Sending response ***");
 					logger.info("main.process.get: Got message: " + payload);
@@ -238,7 +249,7 @@ public class MainVerticle extends AbstractVerticle {
 							.end(payload);
 				}
 			});
-			processGet(bh);
+			processGet(req, resp, bh);
 			return;
 		} else {
 			resp.setStatusCode(405);
@@ -252,6 +263,9 @@ public class MainVerticle extends AbstractVerticle {
 	/**
 	 * Processing a GET request.
 	 * 
+	 * @param resp
+	 * @param req
+	 * 
 	 * @param bh
 	 * @param payload
 	 * @throws BadPaddingException
@@ -263,17 +277,28 @@ public class MainVerticle extends AbstractVerticle {
 	 * @throws ExecutionException
 	 * @throws InterruptedException
 	 */
-	private void processGet(AsyncResult<Buffer> bh) throws InvalidKeyException, NoSuchAlgorithmException,
-			NoSuchPaddingException, InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException,
-			InterruptedException, ExecutionException {
+	private void processGet(HttpServerRequest req, Response resp, AsyncResult<Buffer> bh) throws InvalidKeyException,
+			NoSuchAlgorithmException, NoSuchPaddingException, InvalidAlgorithmParameterException,
+			IllegalBlockSizeException, BadPaddingException, InterruptedException, ExecutionException {
 		logger.info("Processing GET");
-
-		StixProcessor.processGet(vertx, config.getDatastore(), bh.result().toString(), AES_GCM_NOPADDING,
-				keys.getSecretKey(), keys.getIv());
+		String reqBody = bh.result().toString();
+		if (reqBody != null && !reqBody.isEmpty()) {
+			ArtifactProcessor.processGet(vertx, config.getDatastore(), bh.result().toString(), AES_GCM_NOPADDING,
+					keys.getSecretKey(), keys.getIv());
+		} else {
+			Response response = new Response();
+			response.setReason("** No artifact id **");
+			response.setStatusCode(500);
+			Buffer buffer = Buffer.buffer(response.toJsonObject().encodePrettily());
+			vertx.eventBus().publish("main.process.get", buffer);
+		}
 	}
 
 	/**
 	 * Processing a POST request ...
+	 * 
+	 * @param resp
+	 * @param req
 	 * 
 	 * @param bh
 	 * @param resp
@@ -284,12 +309,23 @@ public class MainVerticle extends AbstractVerticle {
 	 * @throws IllegalBlockSizeException
 	 * @throws BadPaddingException
 	 */
-	private Boolean processPost(AsyncResult<Buffer> bh) throws NoSuchAlgorithmException, NoSuchPaddingException,
-			InvalidKeyException, InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException {
+	private void processPost(HttpServerRequest req, Response resp, AsyncResult<Buffer> bh)
+			throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException,
+			InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException {
 		logger.info("Processing POST");
+		String reqBody = bh.result().toString();
+
 		logger.info("Received: " + bh.result().toString());
-		return StixProcessor.processPost(vertx, config.getDatastore(), bh.result().toString(), AES_GCM_NOPADDING,
-				keys.getSecretKey(), keys.getIv());
+		if (reqBody != null && !reqBody.isEmpty()) {
+			ArtifactProcessor.processPost(vertx, config.getDatastore(), bh.result().toString(), AES_GCM_NOPADDING,
+					keys.getSecretKey(), keys.getIv());
+		} else {
+			Response response = new Response();
+			response.setReason("** No artifact **");
+			response.setStatusCode(500);
+			Buffer buffer = Buffer.buffer(response.toJsonObject().encodePrettily());
+			vertx.eventBus().publish("main.process.post", buffer);
+		}
 
 	}
 

@@ -21,8 +21,8 @@ import io.vertx.core.buffer.Buffer;
 import io.vertx.core.eventbus.MessageConsumer;
 import io.vertx.core.json.JsonObject;
 
-public class StixProcessor {
-	private static final Logger logger = LoggerFactory.getLogger(StixProcessor.class);
+public class ArtifactProcessor {
+	private static final Logger logger = LoggerFactory.getLogger(ArtifactProcessor.class);
 
 	public static Boolean processPost(Vertx vertx, String dir, String stixStr, String alg, SecretKey secretKey,
 			byte[] iv) throws InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException,
@@ -30,7 +30,7 @@ public class StixProcessor {
 
 		JsonObject stix = new JsonObject(stixStr);
 		String cipherText = Base64.getUrlEncoder()
-				.encodeToString(StixCipher.encrypt(alg, stixStr.getBytes(), secretKey, iv));
+				.encodeToString(ArtifactCipher.pkcsEncrypt(alg, stixStr.getBytes(), secretKey, iv));
 		String filename = String.format("%s/encrypted-%s.json", dir, stix.getString("id"));
 
 		JsonObject encryptedStix = new JsonObject();
@@ -58,7 +58,7 @@ public class StixProcessor {
 		logger.info("stix id:" + stix.getString("id"));
 		logger.info("encrypted stix artifact:" + cipherText);
 		String original = new String(
-				StixCipher.decrypt(alg, Base64.getUrlDecoder().decode(cipherText.getBytes()), secretKey, iv));
+				ArtifactCipher.pkcsDecrypt(alg, Base64.getUrlDecoder().decode(cipherText.getBytes()), secretKey, iv));
 		logger.info("****: " + original);
 		if (original.compareTo(stixStr) == 0) {
 			logger.info("STIX object encrypted correctedly!");
@@ -117,22 +117,22 @@ public class StixProcessor {
 				 * - Create one-time key - Encrypt text with one-time key - Encrypt one-time key
 				 * with client public key - Sign text with server private key
 				 */
-				String plain = new String(StixCipher.decrypt("AES/GCM/NoPadding",
+				String plain = new String(ArtifactCipher.pkcsDecrypt("AES/GCM/NoPadding",
 						Base64.getUrlDecoder().decode(encrypted.getBytes()), secretKey, iv));
 				logger.info("plain:" + plain);
-				SecretKey onetimeKey = StixCipher.getAESKey(256);
+				SecretKey onetimeKey = ArtifactCipher.getAESKey(256);
 				logger.info("{}", message);
-				byte[] onetimeIv = StixCipher.getRandomNonce(16);
+				byte[] onetimeIv = ArtifactCipher.getRandomNonce(16);
 
 				MainVerticle main = vertx.getOrCreateContext().get("main-verticle");
 
 				String msgCipherText = Base64.getUrlEncoder().encodeToString(
-						StixCipher.encrypt("AES/GCM/NoPadding", plain.getBytes(), onetimeKey, onetimeIv));
+						ArtifactCipher.pkcsEncrypt("AES/GCM/NoPadding", plain.getBytes(), onetimeKey, onetimeIv));
 				logger.info("encoded one-time: " + Base64.getUrlEncoder().encodeToString(onetimeKey.getEncoded()));
 				String keyCipherText = Base64.getUrlEncoder()
-						.encodeToString(StixCipher.encrypt(main.getKeys().getClientPubKey(), onetimeKey.getEncoded()));
+						.encodeToString(ArtifactCipher.encrypt(main.getKeys().getClientPubKey(), onetimeKey.getEncoded()));
 				String signature = Base64.getUrlEncoder()
-						.encodeToString(StixCipher.sign(main.getKeys().getServerPrivKey(), plain.getBytes()));
+						.encodeToString(ArtifactCipher.sign(main.getKeys().getServerPrivKey(), plain.getBytes()));
 
 				payload.setId(stixId);
 				payload.setIv(Base64.getUrlEncoder().encodeToString(onetimeIv));
@@ -145,13 +145,13 @@ public class StixProcessor {
 				 * Reverse - Verify signature with server public key - Decrypt one-time key with
 				 * client private key - Decrypt text with one-time key
 				 */
-				Boolean verified = StixCipher.verifySignature(main.getKeys().getServerPubKey(), plain.getBytes(),
+				Boolean verified = ArtifactCipher.verifySignature(main.getKeys().getServerPubKey(), plain.getBytes(),
 						Base64.getUrlDecoder().decode(signature));
 				logger.info("verified:" + verified);
 				logger.info("Keylen:" + Base64.getUrlDecoder().decode(keyCipherText).length);
-				byte[] clearedKey = StixCipher.decrypt(main.getKeys().getClientPrivKey(),
+				byte[] clearedKey = ArtifactCipher.decrypt(main.getKeys().getClientPrivKey(),
 						Base64.getUrlDecoder().decode(keyCipherText));
-				String clearedText = new String(StixCipher.decrypt("AES/GCM/NoPadding",
+				String clearedText = new String(ArtifactCipher.pkcsDecrypt("AES/GCM/NoPadding",
 						Base64.getUrlDecoder().decode(msgCipherText.getBytes()), onetimeKey, onetimeIv));
 				logger.info("clearedkey: " + clearedKey);
 				logger.info("cleared text:" + clearedText);

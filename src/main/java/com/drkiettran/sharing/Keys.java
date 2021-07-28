@@ -181,8 +181,8 @@ public class Keys {
 	private void getSecretKeyAndIv() throws NoSuchAlgorithmException {
 		if (secretKeyStr == null || secretKeyStr.isEmpty()) {
 			logger.info("Creating new Secret Key & IV!");
-			secretKey = StixCipher.getAESKey(256); // getSecretKey();
-			iv = StixCipher.getRandomNonce(128);
+			secretKey = ArtifactCipher.getAESKey(256); // getSecretKey();
+			iv = ArtifactCipher.getRandomNonce(128);
 			ivStr = Base64.getUrlEncoder().encodeToString(iv);
 			secretKeyStr = Base64.getUrlEncoder().encodeToString(secretKey.getEncoded());
 		} else {

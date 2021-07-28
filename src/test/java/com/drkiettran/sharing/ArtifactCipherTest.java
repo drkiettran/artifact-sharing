@@ -27,8 +27,8 @@ import org.slf4j.LoggerFactory;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 
-public class StixCipherTest {
-	private static Logger logger = LoggerFactory.getLogger(StixCipherTest.class);
+public class ArtifactCipherTest {
+	private static Logger logger = LoggerFactory.getLogger(ArtifactCipherTest.class);
 
 	public static final String ALG_AES = TestingUtil.ALG_AES;
 	private Vertx vertx = Vertx.vertx();
@@ -51,7 +51,7 @@ public class StixCipherTest {
 
 	@Test
 	public void shouldGetSecretKey() throws NoSuchAlgorithmException, InvalidKeySpecException {
-		SecretKey secretKey = StixCipher.getSecretKey(ALG_AES);
+		SecretKey secretKey = ArtifactCipher.getSecretKey(ALG_AES);
 		assertThat(secretKey, not(nullValue()));
 		assertThat(secretKey.getAlgorithm(), equalTo(ALG_AES));
 		assertThat(secretKey.getEncoded().length, is(32));
@@ -62,16 +62,16 @@ public class StixCipherTest {
 
 	@Test
 	public void shouldGenerateSalt() {
-		String salt = StixCipher.generateSalt();
+		String salt = ArtifactCipher.generateSalt();
 		assertThat(salt, not(nullValue()));
 		assertThat(salt.length(), equalTo(16));
 	}
 
 	@Test
 	public void shouldEncryptWithFernet() throws NoSuchAlgorithmException, InvalidKeySpecException {
-		SecretKey secretKey = StixCipher.getSecretKey(ALG_AES);
-		String cipher = StixCipher.fernetEncrypt(TestingUtil.TEST_ARTIFACT, secretKey);
-		String clear = StixCipher.fernetDecrypt(cipher, secretKey);
+		SecretKey secretKey = ArtifactCipher.getSecretKey(ALG_AES);
+		String cipher = ArtifactCipher.fernetEncrypt(TestingUtil.TEST_ARTIFACT, secretKey);
+		String clear = ArtifactCipher.fernetDecrypt(cipher, secretKey);
 		assertThat(cipher, not(nullValue()));
 		assertThat(clear, equalTo(TestingUtil.TEST_ARTIFACT));
 		logger.info("cipher: " + cipher);
@@ -81,8 +81,8 @@ public class StixCipherTest {
 	public void shouldEncryptFernetWithGivenKey() {
 		byte[] decodedKey = Base64.getUrlDecoder().decode(TestingUtil.SECRET_KEY.getBytes());
 		SecretKey secretKey = new SecretKeySpec(decodedKey, 0, decodedKey.length, ALG_AES);
-		String cipher = StixCipher.fernetEncrypt(TestingUtil.TEST_ARTIFACT, secretKey);
-		String clear = StixCipher.fernetDecrypt(cipher, secretKey);
+		String cipher = ArtifactCipher.fernetEncrypt(TestingUtil.TEST_ARTIFACT, secretKey);
+		String clear = ArtifactCipher.fernetDecrypt(cipher, secretKey);
 		assertThat(cipher, not(nullValue()));
 		assertThat(clear, equalTo(TestingUtil.TEST_ARTIFACT));
 		logger.info("cipher: " + cipher);
@@ -92,8 +92,8 @@ public class StixCipherTest {
 	@Test
 	public void shouldSignPayload() throws InvalidKeyException, Exception {
 		String signature = Base64.getUrlEncoder()
-				.encodeToString(StixCipher.sign(keys.getServerPrivKey(), TestingUtil.TEST_ARTIFACT.getBytes()));
-		boolean verified = StixCipher.verifySignature(keys.getServerPubKey(), TestingUtil.TEST_ARTIFACT.getBytes(),
+				.encodeToString(ArtifactCipher.sign(keys.getServerPrivKey(), TestingUtil.TEST_ARTIFACT.getBytes()));
+		boolean verified = ArtifactCipher.verifySignature(keys.getServerPubKey(), TestingUtil.TEST_ARTIFACT.getBytes(),
 				Base64.getUrlDecoder().decode(signature));
 		assertThat(verified, equalTo(true));
 	}
@@ -103,9 +103,9 @@ public class StixCipherTest {
 			NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException {
 		logger.info("clear_text: {}", TestingUtil.SECRET_KEY);
 		String cipherText = Base64.getUrlEncoder()
-				.encodeToString(StixCipher.encrypt(keys.getClientPubKey(), TestingUtil.SECRET_KEY.getBytes()));
+				.encodeToString(ArtifactCipher.encrypt(keys.getClientPubKey(), TestingUtil.SECRET_KEY.getBytes()));
 		logger.info("cipher_text: {}", cipherText);
-		byte[] clearText = StixCipher.decrypt(keys.getClientPrivKey(),
+		byte[] clearText = ArtifactCipher.decrypt(keys.getClientPrivKey(),
 				Base64.getUrlDecoder().decode(cipherText.getBytes()));
 		assertThat(clearText, equalTo(TestingUtil.SECRET_KEY.getBytes()));
 	}
@@ -114,10 +114,10 @@ public class StixCipherTest {
 	void shouldEncryptWithSecretKey() throws InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException,
 			InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException {
 		logger.info("artifact:{}", TestingUtil.TEST_ARTIFACT);
-		String cipherText = Base64.getUrlEncoder().encodeToString(StixCipher.encrypt(TestingUtil.AES_GCM_NOPADDING,
+		String cipherText = Base64.getUrlEncoder().encodeToString(ArtifactCipher.pkcsEncrypt(TestingUtil.AES_GCM_NOPADDING,
 				TestingUtil.TEST_ARTIFACT.getBytes(), keys.getSecretKey(), keys.getIv()));
 		logger.info("cipher: {}, length: {}", cipherText, cipherText.length());
-		byte[] cleared = StixCipher.decrypt(TestingUtil.AES_GCM_NOPADDING, Base64.getUrlDecoder().decode(cipherText),
+		byte[] cleared = ArtifactCipher.pkcsDecrypt(TestingUtil.AES_GCM_NOPADDING, Base64.getUrlDecoder().decode(cipherText),
 				keys.getSecretKey(), keys.getIv());
 		logger.info("cleared:{}", cleared);
 		logger.info("cleared in String: {}", new String(cleared));

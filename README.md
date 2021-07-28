@@ -140,6 +140,8 @@ A working config.json file:
 }
 ```
 
+- ** Note **: You must make sure the `datastore` directory exists before running this application.
+
 Output of a successful run:
 
 ```log

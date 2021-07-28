@@ -31,8 +31,8 @@ import io.vertx.junit5.VertxExtension;
 import io.vertx.junit5.VertxTestContext;
 
 @ExtendWith(VertxExtension.class)
-public class StixProcessorTest {
-	private static final Logger logger = LoggerFactory.getLogger(StixProcessorTest.class);
+public class ArtifactProcessorTest {
+	private static final Logger logger = LoggerFactory.getLogger(ArtifactProcessorTest.class);
 	public static final String ALG = "AES";
 
 	private static final DeploymentOptions depOptions = new DeploymentOptions();
@@ -123,7 +123,7 @@ public class StixProcessorTest {
 			});
 
 		});
-		StixProcessor.processPost(vertx, depOptions.getConfig().getString("datastore"), TestingUtil.TEST_ARTIFACT,
+		ArtifactProcessor.processPost(vertx, depOptions.getConfig().getString("datastore"), TestingUtil.TEST_ARTIFACT,
 				TestingUtil.AES_GCM_NOPADDING, secretKey, iv);
 		logger.info("testing post exits ...");
 	}
@@ -163,13 +163,13 @@ public class StixProcessorTest {
 		String filename = String.format("%s/encrypted-%s.json", depOptions.getConfig().getString("datastore"),
 				stix.getString("id"));
 		vertx.fileSystem().writeFileBlocking(filename, Buffer.buffer(TestingUtil.ENCRYPTED_ARTIFACT));
-		secretKey = StixCipher.makeSecretKey(Base64.getUrlDecoder().decode(TestingUtil.SECRET_KEY));
+		secretKey = ArtifactCipher.makeSecretKey(Base64.getUrlDecoder().decode(TestingUtil.SECRET_KEY));
 		iv = Base64.getUrlDecoder().decode(TestingUtil.IV.getBytes());
 		logger.info("secretKey:" + TestingUtil.SECRET_KEY);
 		logger.info("iv:" + TestingUtil.IV);
 		logger.info("content:" + TestingUtil.ENCRYPTED_ARTIFACT);
 
-		StixProcessor.processGet(vertx, depOptions.getConfig().getString("datastore"), TestingUtil.TEST_ARTIFACT, ALG,
+		ArtifactProcessor.processGet(vertx, depOptions.getConfig().getString("datastore"), TestingUtil.TEST_ARTIFACT, ALG,
 				secretKey, iv);
 		logger.info("testing Get ends ...");
 	}
