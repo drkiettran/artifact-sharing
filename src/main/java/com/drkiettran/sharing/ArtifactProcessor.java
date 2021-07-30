@@ -109,57 +109,65 @@ public class ArtifactProcessor {
 		logger.info("Comsuning data ...");
 		MessageConsumer<Buffer> consumer = vertx.eventBus().consumer("process.get");
 		consumer.handler(message -> {
-			logger.info("process.get receives: " + message.body().toString());
-			JsonObject encryptedJson = new JsonObject(message.body().toString());
-			String encrypted = encryptedJson.getString("encrypted");
+			Buffer buffer = Buffer.buffer();
+
 			try {
-				/**
-				 * - Create one-time key - Encrypt text with one-time key - Encrypt one-time key
-				 * with client public key - Sign text with server private key
-				 */
-				String plain = new String(ArtifactCipher.pkcsDecrypt("AES/GCM/NoPadding",
-						Base64.getUrlDecoder().decode(encrypted.getBytes()), secretKey, iv));
-				logger.info("plain:" + plain);
-				SecretKey onetimeKey = ArtifactCipher.getAESKey(256);
-				logger.info("{}", message);
-				byte[] onetimeIv = ArtifactCipher.getRandomNonce(16);
+				if (message.body() != null && message.body().length() > 0) {
+					logger.info("process.get receives: " + message.body().toString());
+					JsonObject encryptedJson = new JsonObject(message.body().toString());
+					String encrypted = encryptedJson.getString("encrypted");
 
-				MainVerticle main = vertx.getOrCreateContext().get("main-verticle");
+					/**
+					 * - Create one-time key - Encrypt text with one-time key - Encrypt one-time key
+					 * with client public key - Sign text with server private key
+					 */
+					String plain = new String(ArtifactCipher.pkcsDecrypt("AES/GCM/NoPadding",
+							Base64.getUrlDecoder().decode(encrypted.getBytes()), secretKey, iv));
+					logger.info("plain:" + plain);
+					SecretKey onetimeKey = ArtifactCipher.getAESKey(256);
+					logger.info("{}", message);
+					byte[] onetimeIv = ArtifactCipher.getRandomNonce(16);
 
-				String msgCipherText = Base64.getUrlEncoder().encodeToString(
-						ArtifactCipher.pkcsEncrypt("AES/GCM/NoPadding", plain.getBytes(), onetimeKey, onetimeIv));
-				logger.info("encoded one-time: " + Base64.getUrlEncoder().encodeToString(onetimeKey.getEncoded()));
-				String keyCipherText = Base64.getUrlEncoder()
-						.encodeToString(ArtifactCipher.encrypt(main.getKeys().getClientPubKey(), onetimeKey.getEncoded()));
-				String signature = Base64.getUrlEncoder()
-						.encodeToString(ArtifactCipher.sign(main.getKeys().getServerPrivKey(), plain.getBytes()));
+					MainVerticle main = vertx.getOrCreateContext().get("main-verticle");
 
-				payload.setId(stixId);
-				payload.setIv(Base64.getUrlEncoder().encodeToString(onetimeIv));
-				payload.setEncryptedKey(keyCipherText);
-				payload.setEncrypted(msgCipherText);
-				payload.setSignature(signature);
-				payload.setLength(plain.length());
+					String msgCipherText = Base64.getUrlEncoder().encodeToString(
+							ArtifactCipher.pkcsEncrypt("AES/GCM/NoPadding", plain.getBytes(), onetimeKey, onetimeIv));
+					logger.info("encoded one-time: " + Base64.getUrlEncoder().encodeToString(onetimeKey.getEncoded()));
+					String keyCipherText = Base64.getUrlEncoder().encodeToString(
+							ArtifactCipher.encrypt(main.getKeys().getClientPubKey(), onetimeKey.getEncoded()));
+					String signature = Base64.getUrlEncoder()
+							.encodeToString(ArtifactCipher.sign(main.getKeys().getServerPrivKey(), plain.getBytes()));
 
-				/**
-				 * Reverse - Verify signature with server public key - Decrypt one-time key with
-				 * client private key - Decrypt text with one-time key
-				 */
-				Boolean verified = ArtifactCipher.verifySignature(main.getKeys().getServerPubKey(), plain.getBytes(),
-						Base64.getUrlDecoder().decode(signature));
-				logger.info("verified:" + verified);
-				logger.info("Keylen:" + Base64.getUrlDecoder().decode(keyCipherText).length);
-				byte[] clearedKey = ArtifactCipher.decrypt(main.getKeys().getClientPrivKey(),
-						Base64.getUrlDecoder().decode(keyCipherText));
-				String clearedText = new String(ArtifactCipher.pkcsDecrypt("AES/GCM/NoPadding",
-						Base64.getUrlDecoder().decode(msgCipherText.getBytes()), onetimeKey, onetimeIv));
-				logger.info("clearedkey: " + clearedKey);
-				logger.info("cleared text:" + clearedText);
+					payload.setId(stixId);
+					payload.setIv(Base64.getUrlEncoder().encodeToString(onetimeIv));
+					payload.setEncryptedKey(keyCipherText);
+					payload.setEncrypted(msgCipherText);
+					payload.setSignature(signature);
+					payload.setLength(plain.length());
 
-				logger.info("done reverse...");
+					/**
+					 * Reverse - Verify signature with server public key - Decrypt one-time key with
+					 * client private key - Decrypt text with one-time key
+					 */
+					Boolean verified = ArtifactCipher.verifySignature(main.getKeys().getServerPubKey(),
+							plain.getBytes(), Base64.getUrlDecoder().decode(signature));
+					logger.info("verified:" + verified);
+					logger.info("Keylen:" + Base64.getUrlDecoder().decode(keyCipherText).length);
+					byte[] clearedKey = ArtifactCipher.decrypt(main.getKeys().getClientPrivKey(),
+							Base64.getUrlDecoder().decode(keyCipherText));
+					String clearedText = new String(ArtifactCipher.pkcsDecrypt("AES/GCM/NoPadding",
+							Base64.getUrlDecoder().decode(msgCipherText.getBytes()), onetimeKey, onetimeIv));
+					logger.info("clearedkey: " + clearedKey);
+					logger.info("cleared text:" + clearedText);
 
-				Buffer buffer = Buffer.buffer();
-				buffer.appendBytes(payload.toJsonObject().encodePrettily().getBytes());
+					logger.info("done reverse...");
+					buffer.appendBytes(payload.toJsonObject().encodePrettily().getBytes());
+				} else {
+					Response response = new Response();
+					response.setReason("** no data **");
+					response.setStatusCode(500);
+					buffer.appendBytes(response.toJsonObject().encodePrettily().getBytes());
+				}
 				vertx.eventBus().publish("main.process.get", buffer);
 
 			} catch (InvalidKeyException | NoSuchAlgorithmException | NoSuchPaddingException | IllegalBlockSizeException
@@ -174,7 +182,6 @@ public class ArtifactProcessor {
 			logger.info("reading encrypted stix files ...");
 			if (result.succeeded()) {
 				logger.info("input: " + result.result());
-				vertx.eventBus().publish("process.get", result.result());
 				logger.info("process.get published!");
 				try {
 					Thread.sleep(50L);
@@ -183,8 +190,10 @@ public class ArtifactProcessor {
 					e.printStackTrace();
 				}
 			} else {
-				logger.info("Error reading STIX artifact" + result.cause());
+				logger.info("Error reading STIX artifact: " + result.cause());
+
 			}
+			vertx.eventBus().publish("process.get", result.result());
 			logger.info(String.format("Successfully processed GET"));
 		});
 
